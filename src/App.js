@@ -17,10 +17,22 @@ import {
   ListItem,
   ListItemText,
   Backdrop,
+  Tooltip,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import CreateTask from "./pages/CreateTask";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import EditCalendarIcon from "@mui/icons-material/EditCalendar";
+import GroupsIcon from "@mui/icons-material/Groups";
+import ManageTasks from "./pages/ManageTasks";
+import PendingTasks from "./pages/PendingTasks";
+import Bugs from "./pages/Bugs";
+import Team from "./pages/Team";
+import ManageTask from "./pages/ManageTask";
 
 function Layout({ children }) {
   const navigate = useNavigate();
@@ -42,11 +54,16 @@ function Layout({ children }) {
   };
 
   const sideMenuItems = [
-    { text: "Create New Task", path: "/create-task" },
-    { text: "Manage Tasks", path: "/manage-tasks" },
-    { text: "Pending Tasks", path: "/pending-tasks" },
-    { text: "Bugs", path: "/bugs" },
-    { text: "New Features", path: "/new-features" },
+    { text: "Create New Task", path: "/create-task", icon: <AddBoxIcon /> },
+    { text: "Manage Tasks", path: "/manage-tasks", icon: <EditNoteIcon /> },
+    {
+      text: "Pending Tasks",
+      path: "/pending-tasks",
+      icon: <PendingActionsIcon />,
+    },
+    // { text: "Bugs", path: "/bugs", icon: <BugReportIcon /> },
+    { text: "Backlogs", path: "/backlogs", icon: <EditCalendarIcon /> },
+    { text: "Team", path: "/team", icon: <GroupsIcon /> },
   ];
 
   return (
@@ -64,6 +81,7 @@ function Layout({ children }) {
           position: "fixed",
           top: 0,
           left: "42px",
+          zIndex: 100,
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -136,29 +154,36 @@ function Layout({ children }) {
           </Box>
           <List>
             {sideMenuItems.map((item, index) => (
-              <ListItem
-                button
-                key={index}
-                onClick={() => navigate(item.path)}
-                sx={{
-                  p: 1,
-                  pl: 2,
-                  display: "flex",
-                  flexDirection: "row",
-                  gap: "20px",
-                  height: "48px",
-                  // justifyContent: sideMenuOpen ? "initial" : "center",
-                }}
-              >
-                <MenuIcon onClick={(e) => e.preventDefault()} />
-
-                {sideMenuOpen && (
-                  <ListItemText
-                    primary={item.text}
-                    sx={{ textWrapMode: "nowrap" }}
-                  />
-                )}
-              </ListItem>
+              <Tooltip title={item.text} placement={"right"}>
+                <ListItem
+                  button
+                  key={index}
+                  onClick={() => navigate(item.path)}
+                  sx={{
+                    p: 1,
+                    pl: 2,
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: "20px",
+                    height: "48px",
+                    cursor: "pointer",
+                    // justifyContent: sideMenuOpen ? "initial" : "center",
+                  }}
+                >
+                  <Box
+                    onClick={() => navigate(item.path)}
+                    sx={{ height: "24px", width: "24px" }}
+                  >
+                    {item.icon}
+                  </Box>
+                  {sideMenuOpen && (
+                    <ListItemText
+                      primary={item.text}
+                      sx={{ textWrapMode: "nowrap" }}
+                    />
+                  )}
+                </ListItem>
+              </Tooltip>
             ))}
           </List>
         </Box>
@@ -216,6 +241,55 @@ function App() {
                 </Layout>
               }
             />
+            <Route
+              path="/create-task"
+              element={
+                <Layout>
+                  <CreateTask />
+                </Layout>
+              }
+            />
+            <Route
+              path="/manage-tasks"
+              element={
+                <Layout>
+                  <ManageTasks />
+                </Layout>
+              }
+            />
+            <Route
+              path="/manage-tasks/:id"
+              element={
+                <Layout>
+                  <ManageTask />
+                </Layout>
+              }
+            />
+            <Route
+              path="/pending-tasks"
+              element={
+                <Layout>
+                  <PendingTasks />
+                </Layout>
+              }
+            />
+            <Route
+              path="/bugs"
+              element={
+                <Layout>
+                  <Bugs />
+                </Layout>
+              }
+            />
+            <Route
+              path="/team"
+              element={
+                <Layout>
+                  <Team />
+                </Layout>
+              }
+            />
+
             <Route path="*" element={<Navigate to="/" replace />} />
           </>
         )}
