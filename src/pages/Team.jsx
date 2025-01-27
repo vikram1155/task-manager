@@ -42,7 +42,6 @@ function Team() {
   const teamMembersLocal = useSelector(
     (state) => state.teamMembers.teamMembers
   );
-  console.log("a-t", teamMembersLocal);
 
   useEffect(() => {
     teamMembersLocal.length === 0 &&
@@ -89,9 +88,6 @@ function Team() {
     handleCloseModal();
   };
 
-  console.log("a-modalFormData", modalFormData);
-  console.log("a-teamMembersLocal", teamMembersLocal);
-
   return (
     <Box>
       {teamMembersLocal.length ? (
@@ -103,7 +99,7 @@ function Team() {
               justifyContent: "space-between",
             }}
           >
-            <Typography>Team members!</Typography>
+            <Typography>Team members</Typography>
             <Button variant="contained" onClick={handleOpenAddModal}>
               Add new member
             </Button>
@@ -161,7 +157,7 @@ function Team() {
           >
             <Fade in={openModal}>
               <Box sx={style}>
-                <Typography variant="h6" component="h2">
+                <Typography variant="body" component="h2">
                   {isEditMode ? "Edit Team Member" : "Add New Team Member"}
                 </Typography>
                 <Box>

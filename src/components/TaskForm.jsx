@@ -9,8 +9,20 @@ import {
   teamMembers,
   teamTypesOptions,
 } from "../data/Team";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import {
+  DatePicker,
+  DateTimePicker,
+  LocalizationProvider,
+} from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
-const TaskForm = ({ formData, handleFormChange, handleFormChangeType }) => {
+const TaskForm = ({
+  formData,
+  handleFormChange,
+  handleFormChangeType,
+  handleDateChange,
+}) => {
   const teamMembersNames = teamMembers.map((teamMember) => teamMember.mailId);
 
   return (
@@ -118,13 +130,13 @@ const TaskForm = ({ formData, handleFormChange, handleFormChangeType }) => {
             gap: "20px",
           }}
         >
-          <CustomSelect
-            label="Team Assigned"
-            name="teamAssigned"
-            value={formData.teamAssigned}
-            onChange={handleFormChangeType}
-            options={teamTypesOptions}
-          />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Deadline"
+              value={formData.deadline ? dayjs(formData.deadline) : null}
+              onChange={(newValue) => handleDateChange("deadline", newValue)}
+            />
+          </LocalizationProvider>
           <CustomSelect
             label="Priority"
             name="priority"

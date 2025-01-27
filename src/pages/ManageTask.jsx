@@ -28,11 +28,16 @@ function ManageTask() {
     }));
   };
 
+  const handleDateChange = (name, value) => {
+    setManageTask((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   const dispatch = useDispatch();
   const handleSave = () => {
-    console.log("a-manageTask", manageTask);
     dispatch(updateTask(manageTask));
-    console.log("a-allTasksFromRedux", allTasksFromRedux);
     navigate("/manage-tasks");
   };
 
@@ -48,6 +53,7 @@ function ManageTask() {
         formData={manageTask}
         handleFormChange={handleCreateTaskFormChange}
         handleFormChangeType={handleCreateTaskFormChangeType}
+        handleDateChange={handleDateChange}
         handleDiscard={handleDiscard}
         handleSave={handleSave}
       />

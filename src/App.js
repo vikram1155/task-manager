@@ -25,14 +25,14 @@ import LoginPage from "./pages/LoginPage";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import CreateTask from "./pages/CreateTask";
 import EditNoteIcon from "@mui/icons-material/EditNote";
-import PendingActionsIcon from "@mui/icons-material/PendingActions";
-import EditCalendarIcon from "@mui/icons-material/EditCalendar";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import GroupsIcon from "@mui/icons-material/Groups";
 import ManageTasks from "./pages/ManageTasks";
-import PendingTasks from "./pages/PendingTasks";
-import Bugs from "./pages/Bugs";
 import Team from "./pages/Team";
 import ManageTask from "./pages/ManageTask";
+import Notifications from "./pages/Notifications";
+import MyTasks from "./pages/MyTasks";
 
 function Layout({ children }) {
   const navigate = useNavigate();
@@ -54,15 +54,14 @@ function Layout({ children }) {
   };
 
   const sideMenuItems = [
-    { text: "Create New Task", path: "/create-task", icon: <AddBoxIcon /> },
+    { text: "My Tasks", path: "/my-tasks", icon: <AssignmentIcon /> },
     { text: "Manage Tasks", path: "/manage-tasks", icon: <EditNoteIcon /> },
+    { text: "Create New Task", path: "/create-task", icon: <AddBoxIcon /> },
     {
-      text: "Pending Tasks",
-      path: "/pending-tasks",
-      icon: <PendingActionsIcon />,
+      text: "Notifications",
+      path: "/notifications",
+      icon: <NotificationsIcon />,
     },
-    // { text: "Bugs", path: "/bugs", icon: <BugReportIcon /> },
-    { text: "Backlogs", path: "/backlogs", icon: <EditCalendarIcon /> },
     { text: "Team", path: "/team", icon: <GroupsIcon /> },
   ];
 
@@ -242,6 +241,14 @@ function App() {
               }
             />
             <Route
+              path="/my-tasks"
+              element={
+                <Layout>
+                  <MyTasks />
+                </Layout>
+              }
+            />
+            <Route
               path="/create-task"
               element={
                 <Layout>
@@ -266,18 +273,10 @@ function App() {
               }
             />
             <Route
-              path="/pending-tasks"
+              path="/notifications"
               element={
                 <Layout>
-                  <PendingTasks />
-                </Layout>
-              }
-            />
-            <Route
-              path="/bugs"
-              element={
-                <Layout>
-                  <Bugs />
+                  <Notifications />
                 </Layout>
               }
             />

@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  IconButton,
   Paper,
   Table,
   TableBody,
@@ -9,18 +10,22 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import {
   allTasks as allTasksHardCoded,
   statusOptions,
   taskTypeOptions,
+  teamMembers,
 } from "../data/Team";
-import EditIcon from "@mui/icons-material/Edit";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setAllTasks } from "../redux/tasksSlice";
 import CustomSelect from "../components/CustomSelect";
+import CustomTextField from "../components/CustomTextField";
+import CustomMultiSelect from "../components/CustomMultiSelect";
 
 function ManageTasks() {
   const allTasksFromRedux = useSelector((state) => state.tasks.allTasks);
@@ -37,8 +42,9 @@ function ManageTasks() {
   const navigate = useNavigate();
 
   const [filters, setFilters] = useState({
-    type: "",
-    status: "",
+    type: [], // Now an array to handle multiple selections
+    status: [], // Now an array to handle multiple selections
+    assignedTo: [],
     searchValue: "",
   });
 
@@ -51,13 +57,20 @@ function ManageTasks() {
           .toLowerCase()
           .includes(filters.searchValue.toLowerCase());
 
-      const matchesType = filters.type ? task.type === filters.type : true;
+      const matchesType =
+        filters.type.length > 0 ? filters.type.includes(task.type) : true;
 
-      const matchesStatus = filters.status
-        ? task.status === filters.status
-        : true;
+      const matchesStatus =
+        filters.status.length > 0 ? filters.status.includes(task.status) : true;
 
-      return matchesSearchValue && matchesType && matchesStatus;
+      const matchesAssignedTo =
+        filters.assignedTo.length > 0
+          ? filters.assignedTo.includes(task.assignedTo)
+          : true;
+
+      return (
+        matchesSearchValue && matchesType && matchesStatus && matchesAssignedTo
+      );
     });
 
     setManageTasksTableValues(filteredValues);
@@ -70,35 +83,61 @@ function ManageTasks() {
     }));
   };
 
+  const teamMembersNames = teamMembers.map((teamMember) => teamMember.mailId);
+
   return (
     <Box>
-      <h1>Manage Tasks!</h1>
-      <Box>
-        <h3>Filters:</h3>
-        <Box sx={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-          <TextField
-            onChange={(e) => handleFilters("searchValue", e.target.value)}
-            value={filters.searchValue}
-            label="Search"
-            variant="outlined"
-          />
-          <CustomSelect
+      Manage Tasks
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "70px 2fr 1fr",
+          gap: "10px",
+          alignItems: "center",
+          pb: 2,
+        }}
+      >
+        <Typography variant="body" fontWeight={700} mt={"3px"}>
+          Filters:
+        </Typography>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr 30px",
+            gap: "20px",
+            alignItems: "center",
+          }}
+        >
+          <CustomMultiSelect
             label="Task Type"
             name="type"
             value={filters.type}
-            onChange={(e) => handleFilters("type", e.target.value)}
+            onChange={(e, name) => handleFilters(name, e.target.value)}
             options={taskTypeOptions}
           />
-          <CustomSelect
+          <CustomMultiSelect
             label="Status"
             name="status"
             value={filters.status}
-            onChange={(e) => handleFilters("status", e.target.value)}
+            onChange={(e, name) => handleFilters(name, e.target.value)}
             options={statusOptions}
           />
+          <CustomMultiSelect
+            label="Assigned To"
+            name="assignedTo"
+            value={filters.assignedTo}
+            onChange={(e, name) => handleFilters(name, e.target.value)}
+            options={teamMembersNames}
+          />
         </Box>
+        <CustomTextField
+          label="Search"
+          name="search"
+          placeholder="Search for ID, Title and Description"
+          value={filters.searchValue}
+          onChange={(e) => handleFilters("searchValue", e.target.value)}
+        />
       </Box>
-
       {manageTasksTableValues.length ? (
         <TableContainer
           component={Paper}
@@ -115,14 +154,17 @@ function ManageTasks() {
                   Task ID
                 </TableCell>
                 <TableCell sx={{ width: "20%" }}>Title</TableCell>
-                <TableCell sx={{ width: "40%" }}>Description</TableCell>
+                <TableCell sx={{ width: "30%" }}>Description</TableCell>
+                <TableCell sx={{ width: "20%", minWidth: "50px" }}>
+                  Assigned To
+                </TableCell>
+                <TableCell sx={{ width: "15%", minWidth: "80px" }}>
+                  Deadline
+                </TableCell>
                 <TableCell sx={{ width: "10%", minWidth: "50px" }}>
                   Type
                 </TableCell>
-                <TableCell sx={{ width: "10%", minWidth: "50px" }}>
-                  ETA
-                </TableCell>
-                <TableCell sx={{ width: "15%", minWidth: "100px" }}>
+                <TableCell sx={{ width: "15%", minWidth: "80px" }}>
                   Status
                 </TableCell>
                 <TableCell sx={{ width: "10%", minWidth: "50px" }}></TableCell>
@@ -139,25 +181,18 @@ function ManageTasks() {
                   </TableCell>
                   <TableCell>{row.title}</TableCell>
                   <TableCell>{row.description}</TableCell>
+                  <TableCell>{row.assignedTo}</TableCell>
+                  <TableCell>
+                    {new Date(row.deadline).toLocaleDateString("en-GB")}
+                  </TableCell>
                   <TableCell>{row.type}</TableCell>
-                  <TableCell>{row.storyPoints}</TableCell>
                   <TableCell>{row.status}</TableCell>
                   <TableCell>
-                    <Button
-                      variant="outlined"
+                    <IconButton
                       onClick={() => navigate(`/manage-tasks/${row.taskId}`)}
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        height: "40px",
-                        padding: "4px 12px 4px 8px",
-                        textTransform: "none",
-                        gap: "10px",
-                      }}
                     >
-                      <EditIcon sx={{ fontSize: "14px" }} />
-                      Edit
-                    </Button>
+                      <OpenInNewIcon sx={{ fontSize: "14px" }} />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}

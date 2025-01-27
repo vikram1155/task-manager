@@ -17,6 +17,7 @@ function CreateTask() {
     comments: "",
     priority: "",
     teamAssigned: "",
+    deadline: null,
   });
 
   const handleCreateTaskFormChange = (e) => {
@@ -34,12 +35,18 @@ function CreateTask() {
     }));
   };
 
+  const handleDateChange = (name, value) => {
+    setCreateTaskForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleSave = () => {
     dispatch(addTask(createTaskForm));
     navigate("/manage-tasks");
-    console.log("Task Saved:", createTaskForm);
   };
 
   const handleDiscard = () => {
@@ -61,6 +68,7 @@ function CreateTask() {
         formData={createTaskForm}
         handleFormChange={handleCreateTaskFormChange}
         handleFormChangeType={handleCreateTaskFormChangeType}
+        handleDateChange={handleDateChange}
         handleDiscard={handleDiscard}
         handleSave={handleSave}
       />
