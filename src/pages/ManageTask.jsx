@@ -1,7 +1,6 @@
 import { Box, Button } from "@mui/material";
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { allTasks } from "../data/Team";
 import TaskForm from "../components/TaskForm";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteTask, updateTask } from "../redux/tasksSlice";
