@@ -4,13 +4,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import TaskForm from "../components/TaskForm";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteTask, updateTask } from "../redux/tasksSlice";
+import { deleteTaskApi, updateTaskApi } from "../utils/api";
 
 function ManageTask() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const allTasksFromRedux = useSelector((state) => state.tasks.allTasks);
-  const [manageTask, setManageTask] = useState(allTasksFromRedux[id - 1]);
+  const [manageTask, setManageTask] = useState(
+    allTasksFromRedux.filter((a) => a.taskId === id)[0]
+  );
 
   const handleCreateTaskFormChange = (e) => {
     const { name, value } = e.target;
@@ -35,13 +38,27 @@ function ManageTask() {
   };
 
   const dispatch = useDispatch();
-  const handleSave = () => {
-    dispatch(updateTask(manageTask));
-    navigate("/manage-tasks");
+  const handleSave = async () => {
+    try {
+      const updatedTaskRes = await updateTaskApi(id, manageTask);
+      if (updatedTaskRes?.status?.code === 200) {
+        dispatch(updateTask(manageTask));
+        navigate("/manage-tasks");
+      }
+    } catch (error) {
+      console.error("Error gettings tasks:", error);
+    }
   };
 
-  const handleDiscard = () => {
-    dispatch(deleteTask(Number(id)));
+  const handleDiscard = async () => {
+    try {
+      const deleteTaskRes = await deleteTaskApi(id);
+      if (deleteTaskRes?.status?.code === 200) {
+        dispatch(deleteTask(id));
+      }
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
     navigate("/manage-tasks");
   };
 

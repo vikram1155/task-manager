@@ -213,7 +213,6 @@ function App() {
   const [isAuthenticated, setAuthenticated] = useState(
     localStorage.getItem("isAuthenticated") === "true"
   );
-  console.log("isAuthenticated", isAuthenticated);
 
   return (
     <Router>
@@ -222,11 +221,7 @@ function App() {
           <>
             <Route
               path="/login"
-              element={
-                <Layout>
-                  <LoginPage setAuthenticated={setAuthenticated} />
-                </Layout>
-              }
+              element={<LoginPage setAuthenticated={setAuthenticated} />}
             />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </>

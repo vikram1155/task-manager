@@ -11,32 +11,35 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import {
-  allTasks as allTasksHardCoded,
-  statusOptions,
-  taskTypeOptions,
-  teamMembers,
-} from "../data/Team";
+import { statusOptions, taskTypeOptions, teamMembers } from "../data/data";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setAllTasks } from "../redux/tasksSlice";
 import CustomTextField from "../components/CustomTextField";
 import CustomMultiSelect from "../components/CustomMultiSelect";
+import { getAllTasksFromApi } from "../utils/api";
+import CustomTableCell from "../components/CustomTableCell";
 
 function ManageTasks() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const getAllTasks = async () => {
+      try {
+        const getTasks = await getAllTasksFromApi();
+        dispatch(setAllTasks(getTasks));
+      } catch (error) {
+        console.error("Error gettings tasks:", error);
+      }
+    };
+    getAllTasks();
+  }, [dispatch]);
+
   const allTasksFromRedux = useSelector((state) => state.tasks.allTasks);
   const [manageTasksTableValues, setManageTasksTableValues] =
     useState(allTasksFromRedux);
-
-  const dispatch = useDispatch();
-  useEffect(() => {
-    if (allTasksFromRedux.length === 0) {
-      dispatch(setAllTasks(allTasksHardCoded));
-    }
-  }, [allTasksFromRedux.length, dispatch]);
-
-  const navigate = useNavigate();
 
   const [filters, setFilters] = useState({
     type: [], // Now an array to handle multiple selections
@@ -147,24 +150,32 @@ function ManageTasks() {
           <Table aria-label="Tasks table" stickyHeader>
             <TableHead stickyHeader>
               <TableRow>
-                <TableCell sx={{ width: "5%", minWidth: "50px" }}>
-                  Task ID
-                </TableCell>
-                <TableCell sx={{ width: "20%" }}>Title</TableCell>
-                <TableCell sx={{ width: "30%" }}>Description</TableCell>
-                <TableCell sx={{ width: "20%", minWidth: "50px" }}>
-                  Assigned To
-                </TableCell>
-                <TableCell sx={{ width: "15%", minWidth: "80px" }}>
-                  Deadline
-                </TableCell>
-                <TableCell sx={{ width: "10%", minWidth: "50px" }}>
-                  Type
-                </TableCell>
-                <TableCell sx={{ width: "15%", minWidth: "80px" }}>
-                  Status
-                </TableCell>
-                <TableCell sx={{ width: "10%", minWidth: "50px" }}></TableCell>
+                <CustomTableCell
+                  sx={{ width: "5%", minWidth: "50px" }}
+                  value="Task ID"
+                />
+                <CustomTableCell sx={{ width: "20%" }} value="Title" />
+                <CustomTableCell sx={{ width: "30%" }} value="Description" />
+                <CustomTableCell
+                  sx={{ width: "20%", minWidth: "50px" }}
+                  value="Assigned To"
+                />
+                <CustomTableCell
+                  sx={{ width: "15%", minWidth: "80px" }}
+                  value="Deadline"
+                />
+                <CustomTableCell
+                  sx={{ width: "10%", minWidth: "50px" }}
+                  value="Type"
+                />
+                <CustomTableCell
+                  sx={{ width: "15%", minWidth: "80px" }}
+                  value="Status"
+                />
+                <CustomTableCell
+                  sx={{ width: "10%", minWidth: "50px" }}
+                  value=""
+                />
               </TableRow>
             </TableHead>
             <TableBody>
@@ -174,7 +185,7 @@ function ManageTasks() {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell component="th" scope="row">
-                    {row.taskId}
+                    {row?.taskId?.slice(0, 8)}
                   </TableCell>
                   <TableCell>{row.title}</TableCell>
                   <TableCell>{row.description}</TableCell>

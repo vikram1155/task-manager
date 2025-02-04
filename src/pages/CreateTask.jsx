@@ -4,6 +4,8 @@ import TaskForm from "../components/TaskForm";
 import { useDispatch } from "react-redux";
 import { addTask } from "../redux/tasksSlice";
 import { useNavigate } from "react-router-dom";
+import { createTaskApi } from "../utils/api";
+import { v4 as uuidv4 } from "uuid";
 
 function CreateTask() {
   const [createTaskForm, setCreateTaskForm] = useState({
@@ -44,9 +46,21 @@ function CreateTask() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const handleSave = () => {
-    dispatch(addTask(createTaskForm));
-    navigate("/manage-tasks");
+  const handleSave = async () => {
+    const createTaskFormModified = {
+      ...createTaskForm,
+      taskId: uuidv4(),
+      assignedOn: new Date().toISOString(),
+    };
+    try {
+      const newTask = await createTaskApi(createTaskFormModified);
+      if (newTask?.status?.code === 200) {
+        dispatch(addTask(createTaskFormModified));
+      }
+      navigate("/manage-tasks");
+    } catch (error) {
+      console.error("Error saving task:", error);
+    }
   };
 
   const handleDiscard = () => {

@@ -7,7 +7,7 @@ import {
   statusOptions,
   taskTypeOptions,
   teamMembers,
-} from "../data/Team";
+} from "../data/data";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";

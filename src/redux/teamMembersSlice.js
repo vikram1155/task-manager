@@ -24,7 +24,7 @@ const teamMembersSlice = createSlice({
     },
     deleteMember(state, action) {
       state.teamMembers = state.teamMembers.filter(
-        (member) => member.mailId !== action.payload
+        (member) => member.teamMemberId !== action.payload
       );
     },
   },

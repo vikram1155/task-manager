@@ -9,16 +9,23 @@ import Paper from "@mui/material/Paper";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import Backdrop from "@mui/material/Backdrop";
 import CustomTextField from "../components/CustomTextField";
+import { v4 as uuidv4 } from "uuid";
 
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { teamMembers as hardcodedTeamMembers } from "../data/Team"; // Update the path as needed
 import {
   setTeamMembers,
   addMember,
   updateMember,
   deleteMember,
 } from "../redux/teamMembersSlice";
+import {
+  createTeamMember,
+  deleteMemberApi,
+  getAllTeamFromApi,
+  updateTeamMember,
+} from "../utils/api";
+import CustomTableCell from "../components/CustomTableCell";
 
 const style = {
   position: "absolute",
@@ -35,7 +42,7 @@ const style = {
 function Team() {
   const [openModal, setOpenModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [selectedTeamMemberMailId, setSelectedTeamMemberMailId] = useState("");
+  const [selectedTeamMemberId, setselectedTeamMemberId] = useState("");
   const [modalFormData, setModalFormData] = useState({});
 
   const dispatch = useDispatch();
@@ -44,9 +51,16 @@ function Team() {
   );
 
   useEffect(() => {
-    teamMembersLocal.length === 0 &&
-      dispatch(setTeamMembers(hardcodedTeamMembers));
-  }, [dispatch, teamMembersLocal.length]);
+    const getAllTeamMembersFn = async () => {
+      try {
+        const getAllTeamMembers = await getAllTeamFromApi();
+        dispatch(setTeamMembers(getAllTeamMembers));
+      } catch (error) {
+        console.error("Error gettings tasks:", error);
+      }
+    };
+    getAllTeamMembersFn();
+  }, [dispatch]);
 
   const handleModalFormChanges = (e) => {
     const { name, value } = e.target;
@@ -61,18 +75,39 @@ function Team() {
     setOpenModal(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (isEditMode) {
-      dispatch(updateMember(modalFormData));
+      try {
+        const updateTeamMemberRes = await updateTeamMember(
+          modalFormData.teamMemberId,
+          modalFormData
+        );
+        if (updateTeamMemberRes?.status?.code === 200) {
+          dispatch(updateMember(modalFormData));
+        }
+      } catch (error) {
+        console.error("Error updating member:", error);
+      }
     } else {
-      dispatch(addMember(modalFormData));
+      const newMemberWithId = {
+        teamMemberId: uuidv4(),
+        ...modalFormData,
+      };
+      try {
+        const createTeamMemberRes = await createTeamMember(newMemberWithId);
+        if (createTeamMemberRes?.status?.code === 200) {
+          dispatch(addMember(newMemberWithId));
+        }
+      } catch (error) {
+        console.error("Error creating member:", error);
+      }
     }
     handleCloseModal();
   };
 
   const handleOpenEditModal = (row) => {
     setIsEditMode(true);
-    setSelectedTeamMemberMailId(row.mailId);
+    setselectedTeamMemberId(row.teamMemberId);
     setModalFormData(row);
     setOpenModal(true);
   };
@@ -83,11 +118,19 @@ function Team() {
     setOpenModal(true);
   };
 
-  const handleRemoveMember = () => {
-    dispatch(deleteMember(selectedTeamMemberMailId));
+  const handleRemoveMember = async () => {
+    try {
+      const deleteMemberRes = await deleteMemberApi(selectedTeamMemberId);
+      if (deleteMemberRes?.status?.code === 200) {
+        dispatch(deleteMember(selectedTeamMemberId));
+      }
+    } catch (error) {
+      console.error("Error deleteing member:", error);
+    }
     handleCloseModal();
   };
 
+  // JSX
   return (
     <Box>
       {teamMembersLocal.length ? (
@@ -117,13 +160,13 @@ function Team() {
               <Table aria-label="simple table" stickyHeader>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Age</TableCell>
-                    <TableCell>Mail ID</TableCell>
-                    <TableCell>Phone</TableCell>
-                    <TableCell>Role</TableCell>
-                    <TableCell>Remarks</TableCell>
-                    <TableCell></TableCell>
+                    <CustomTableCell value="Name" />
+                    <CustomTableCell value="Age" />
+                    <CustomTableCell value="Mail ID" />
+                    <CustomTableCell value="Phone" />
+                    <CustomTableCell value="Role" />
+                    <CustomTableCell value="Remarks" />
+                    <CustomTableCell value="" />
                   </TableRow>
                 </TableHead>
                 <TableBody>

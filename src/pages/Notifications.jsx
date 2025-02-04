@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import CustomTableCell from "../components/CustomTableCell";
 
 function Notifications() {
   const allTasksFromRedux = useSelector((state) => state.tasks.allTasks);
@@ -52,26 +53,32 @@ function Notifications() {
             <Table aria-label="Tasks table" stickyHeader>
               <TableHead stickyHeader>
                 <TableRow>
-                  <TableCell sx={{ width: "5%", minWidth: "50px" }}>
-                    Task ID
-                  </TableCell>
-                  <TableCell sx={{ width: "20%" }}>Title</TableCell>
-                  <TableCell sx={{ width: "30%" }}>Description</TableCell>
-                  <TableCell sx={{ width: "20%", minWidth: "50px" }}>
-                    Assigned To
-                  </TableCell>
-                  <TableCell sx={{ width: "10%", minWidth: "50px" }}>
-                    Deadline
-                  </TableCell>
-                  <TableCell sx={{ width: "10%", minWidth: "50px" }}>
-                    Type
-                  </TableCell>
-                  <TableCell sx={{ width: "15%", minWidth: "80px" }}>
-                    Status
-                  </TableCell>
-                  <TableCell
+                  <CustomTableCell
+                    sx={{ width: "5%", minWidth: "50px" }}
+                    value="Task ID"
+                  />
+                  <CustomTableCell sx={{ width: "20%" }} value="Title" />
+                  <CustomTableCell sx={{ width: "30%" }} value="Description" />
+                  <CustomTableCell
+                    sx={{ width: "20%", minWidth: "50px" }}
+                    value="Assigned To"
+                  />
+                  <CustomTableCell
+                    sx={{ width: "10%", minWidth: "80px" }}
+                    value="Deadline"
+                  />
+                  <CustomTableCell
                     sx={{ width: "10%", minWidth: "50px" }}
-                  ></TableCell>
+                    value="Type"
+                  />
+                  <CustomTableCell
+                    sx={{ width: "15%", minWidth: "80px" }}
+                    value="Status"
+                  />
+                  <CustomTableCell
+                    sx={{ width: "10%", minWidth: "50px" }}
+                    value=""
+                  />
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -129,26 +136,32 @@ function Notifications() {
             <Table aria-label="Tasks table" stickyHeader>
               <TableHead stickyHeader>
                 <TableRow>
-                  <TableCell sx={{ width: "5%", minWidth: "50px" }}>
-                    Task ID
-                  </TableCell>
-                  <TableCell sx={{ width: "20%" }}>Title</TableCell>
-                  <TableCell sx={{ width: "30%" }}>Description</TableCell>
-                  <TableCell sx={{ width: "20%", minWidth: "50px" }}>
-                    Assigned To
-                  </TableCell>
-                  <TableCell sx={{ width: "10%", minWidth: "50px" }}>
-                    Deadline
-                  </TableCell>
-                  <TableCell sx={{ width: "10%", minWidth: "50px" }}>
-                    Type
-                  </TableCell>
-                  <TableCell sx={{ width: "15%", minWidth: "80px" }}>
-                    Status
-                  </TableCell>
-                  <TableCell
+                  <CustomTableCell
+                    sx={{ width: "5%", minWidth: "50px" }}
+                    value="Task ID"
+                  />
+                  <CustomTableCell sx={{ width: "20%" }} value="Title" />
+                  <CustomTableCell sx={{ width: "30%" }} value="Description" />
+                  <CustomTableCell
+                    sx={{ width: "20%", minWidth: "50px" }}
+                    value="Assigned To"
+                  />
+                  <CustomTableCell
+                    sx={{ width: "10%", minWidth: "80px" }}
+                    value="Deadline"
+                  />
+                  <CustomTableCell
                     sx={{ width: "10%", minWidth: "50px" }}
-                  ></TableCell>
+                    value="Type"
+                  />
+                  <CustomTableCell
+                    sx={{ width: "15%", minWidth: "80px" }}
+                    value="Status"
+                  />
+                  <CustomTableCell
+                    sx={{ width: "10%", minWidth: "50px" }}
+                    value=""
+                  />
                 </TableRow>
               </TableHead>
               <TableBody>

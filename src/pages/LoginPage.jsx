@@ -7,6 +7,7 @@ function LoginPage({ setAuthenticated }) {
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
+    age: "",
     role: "",
     password: "",
     email: "",
@@ -100,7 +101,18 @@ function LoginPage({ setAuthenticated }) {
             type="text"
             value={formData.role}
             onChange={handleChange}
-            required
+          />
+        )}
+
+        {!isLogin && (
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Age"
+            name="age"
+            type="text"
+            value={formData.age}
+            onChange={handleChange}
           />
         )}
 
