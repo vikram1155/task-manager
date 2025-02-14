@@ -1,5 +1,5 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
 import {
   Box,
@@ -16,9 +16,15 @@ import {
 import { useNavigate } from "react-router-dom";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CustomTableCell from "../components/CustomTableCell";
+import { getAllTasksFromApi } from "../utils/api";
+import { setAllTasks } from "../redux/tasksSlice";
 
 function Notifications() {
   const allTasksFromRedux = useSelector((state) => state.tasks.allTasks);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  console.log("a-allTasksFromRedux", allTasksFromRedux);
 
   const currentDate = dayjs(); // Using Day.js for date handling
   const nearingDeadlineTasks = allTasksFromRedux.filter(
@@ -30,7 +36,17 @@ function Notifications() {
     dayjs(task.deadline).isBefore(currentDate)
   );
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    const getAllTasks = async () => {
+      try {
+        const getTasks = await getAllTasksFromApi();
+        dispatch(setAllTasks(getTasks));
+      } catch (error) {
+        console.error("Error gettings tasks:", error);
+      }
+    };
+    getAllTasks();
+  }, [dispatch]);
 
   return (
     <Box>

@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { statusOptions, taskTypeOptions, teamMembers } from "../data/data";
+import { statusOptions, taskTypeOptions } from "../data/data";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,18 +20,23 @@ import CustomTextField from "../components/CustomTextField";
 import CustomMultiSelect from "../components/CustomMultiSelect";
 import { getAllTasksFromApi } from "../utils/api";
 import CustomTableCell from "../components/CustomTableCell";
+import CustomLoader from "../components/CustomLoader";
+import CustomError from "../components/CustomError";
 
 function ManageTasks() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [apiState, setApiState] = useState({ loading: true, error: false });
 
   useEffect(() => {
     const getAllTasks = async () => {
       try {
         const getTasks = await getAllTasksFromApi();
         dispatch(setAllTasks(getTasks));
+        setApiState({ loading: false, error: false });
       } catch (error) {
         console.error("Error gettings tasks:", error);
+        setApiState({ loading: false, error: true });
       }
     };
     getAllTasks();
@@ -83,132 +88,168 @@ function ManageTasks() {
     }));
   };
 
-  const teamMembersNames = teamMembers.map((teamMember) => teamMember.mailId);
+  const existingMembers = useSelector((state) => state.teamMembers.teamMembers);
+  const teamMembersNames = existingMembers.map(
+    (teamMember) => teamMember.mailId
+  );
 
   return (
     <Box>
       Manage Tasks
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "70px 2fr 1fr",
-          gap: "10px",
-          alignItems: "center",
-          pb: 2,
-        }}
-      >
-        <Typography variant="body" fontWeight={700} mt={"3px"}>
-          Filters:
-        </Typography>
+      {apiState.loading ? (
         <Box
           sx={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr 30px",
-            gap: "20px",
+            height: "calc(100vh - 100px)",
+            textAlign: "center",
+            display: "flex",
             alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <CustomMultiSelect
-            label="Task Type"
-            name="type"
-            value={filters.type}
-            onChange={(e, name) => handleFilters(name, e.target.value)}
-            options={taskTypeOptions}
-          />
-          <CustomMultiSelect
-            label="Status"
-            name="status"
-            value={filters.status}
-            onChange={(e, name) => handleFilters(name, e.target.value)}
-            options={statusOptions}
-          />
-          <CustomMultiSelect
-            label="Assigned To"
-            name="assignedTo"
-            value={filters.assignedTo}
-            onChange={(e, name) => handleFilters(name, e.target.value)}
-            options={teamMembersNames}
-          />
+          <CustomLoader />
         </Box>
-        <CustomTextField
-          label="Search"
-          name="search"
-          placeholder="Search for ID, Title and Description"
-          value={filters.searchValue}
-          onChange={(e) => handleFilters("searchValue", e.target.value)}
-        />
-      </Box>
-      {manageTasksTableValues.length ? (
-        <TableContainer
-          component={Paper}
+      ) : apiState.error ? (
+        <Box
           sx={{
-            maxHeight: "500px",
-            overflow: "auto",
-            border: "0.5px solid #ddd",
+            height: "calc(100vh - 150px)",
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <Table aria-label="Tasks table" stickyHeader>
-            <TableHead stickyHeader>
-              <TableRow>
-                <CustomTableCell
-                  sx={{ width: "5%", minWidth: "50px" }}
-                  value="Task ID"
-                />
-                <CustomTableCell sx={{ width: "20%" }} value="Title" />
-                <CustomTableCell sx={{ width: "30%" }} value="Description" />
-                <CustomTableCell
-                  sx={{ width: "20%", minWidth: "50px" }}
-                  value="Assigned To"
-                />
-                <CustomTableCell
-                  sx={{ width: "15%", minWidth: "80px" }}
-                  value="Deadline"
-                />
-                <CustomTableCell
-                  sx={{ width: "10%", minWidth: "50px" }}
-                  value="Type"
-                />
-                <CustomTableCell
-                  sx={{ width: "15%", minWidth: "80px" }}
-                  value="Status"
-                />
-                <CustomTableCell
-                  sx={{ width: "10%", minWidth: "50px" }}
-                  value=""
-                />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {manageTasksTableValues.map((row) => (
-                <TableRow
-                  key={row.taskId}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    {row?.taskId?.slice(0, 8)}
-                  </TableCell>
-                  <TableCell>{row.title}</TableCell>
-                  <TableCell>{row.description}</TableCell>
-                  <TableCell>{row.assignedTo}</TableCell>
-                  <TableCell>
-                    {new Date(row.deadline).toLocaleDateString("en-GB")}
-                  </TableCell>
-                  <TableCell>{row.type}</TableCell>
-                  <TableCell>{row.status}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      onClick={() => navigate(`/manage-tasks/${row.taskId}`)}
-                    >
-                      <OpenInNewIcon sx={{ fontSize: "14px" }} />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+          <CustomError />
+        </Box>
       ) : (
-        <Box>Loading...</Box>
+        <Box>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "70px 2fr 1fr",
+              gap: "10px",
+              alignItems: "center",
+              pb: 2,
+            }}
+          >
+            <Typography variant="body" fontWeight={700} mt={"3px"}>
+              Filters:
+            </Typography>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr 30px",
+                gap: "20px",
+                alignItems: "center",
+              }}
+            >
+              <CustomMultiSelect
+                label="Task Type"
+                name="type"
+                value={filters.type}
+                onChange={(e, name) => handleFilters(name, e.target.value)}
+                options={taskTypeOptions}
+              />
+              <CustomMultiSelect
+                label="Status"
+                name="status"
+                value={filters.status}
+                onChange={(e, name) => handleFilters(name, e.target.value)}
+                options={statusOptions}
+              />
+              <CustomMultiSelect
+                label="Assigned To"
+                name="assignedTo"
+                value={filters.assignedTo}
+                onChange={(e, name) => handleFilters(name, e.target.value)}
+                options={teamMembersNames}
+              />
+            </Box>
+            <CustomTextField
+              label="Search"
+              name="search"
+              placeholder="Search for ID, Title and Description"
+              value={filters.searchValue}
+              onChange={(e) => handleFilters("searchValue", e.target.value)}
+            />
+          </Box>
+          {manageTasksTableValues.length ? (
+            <TableContainer
+              component={Paper}
+              sx={{
+                maxHeight: "500px",
+                overflow: "auto",
+                border: "0.5px solid #ddd",
+              }}
+            >
+              <Table aria-label="Tasks table" stickyHeader>
+                <TableHead stickyHeader>
+                  <TableRow>
+                    <CustomTableCell
+                      sx={{ width: "5%", minWidth: "50px" }}
+                      value="Task ID"
+                    />
+                    <CustomTableCell sx={{ width: "20%" }} value="Title" />
+                    <CustomTableCell
+                      sx={{ width: "30%" }}
+                      value="Description"
+                    />
+                    <CustomTableCell
+                      sx={{ width: "20%", minWidth: "50px" }}
+                      value="Assigned To"
+                    />
+                    <CustomTableCell
+                      sx={{ width: "15%", minWidth: "80px" }}
+                      value="Deadline"
+                    />
+                    <CustomTableCell
+                      sx={{ width: "10%", minWidth: "50px" }}
+                      value="Type"
+                    />
+                    <CustomTableCell
+                      sx={{ width: "15%", minWidth: "80px" }}
+                      value="Status"
+                    />
+                    <CustomTableCell
+                      sx={{ width: "10%", minWidth: "50px" }}
+                      value=""
+                    />
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {manageTasksTableValues.map((row) => (
+                    <TableRow
+                      key={row.taskId}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {row?.taskId?.slice(0, 8)}
+                      </TableCell>
+                      <TableCell>{row.title}</TableCell>
+                      <TableCell>{row.description}</TableCell>
+                      <TableCell>{row.assignedTo}</TableCell>
+                      <TableCell>
+                        {new Date(row.deadline).toLocaleDateString("en-GB")}
+                      </TableCell>
+                      <TableCell>{row.type}</TableCell>
+                      <TableCell>{row.status}</TableCell>
+                      <TableCell>
+                        <IconButton
+                          onClick={() =>
+                            navigate(`/manage-tasks/${row.taskId}`)
+                          }
+                        >
+                          <OpenInNewIcon sx={{ fontSize: "14px" }} />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <Box>No Data found!</Box>
+          )}
+        </Box>
       )}
     </Box>
   );

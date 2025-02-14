@@ -71,7 +71,7 @@ function MyTasks() {
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
-                  {row.taskId}
+                  {row?.taskId?.slice(0, 8)}
                 </TableCell>
                 <TableCell>{row.title}</TableCell>
                 <TableCell>{row.description}</TableCell>

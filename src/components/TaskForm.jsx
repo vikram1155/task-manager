@@ -2,15 +2,11 @@ import React from "react";
 import { Box } from "@mui/material";
 import CustomTextField from "./CustomTextField";
 import CustomSelect from "./CustomSelect";
-import {
-  priorityOptions,
-  statusOptions,
-  taskTypeOptions,
-  teamMembers,
-} from "../data/data";
+import { priorityOptions, statusOptions, taskTypeOptions } from "../data/data";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
+import { useSelector } from "react-redux";
 
 const TaskForm = ({
   formData,
@@ -18,7 +14,11 @@ const TaskForm = ({
   handleFormChangeType,
   handleDateChange,
 }) => {
-  const teamMembersNames = teamMembers.map((teamMember) => teamMember.mailId);
+  const existingMembers = useSelector((state) => state.teamMembers.teamMembers);
+  console.log("a-e", existingMembers);
+  const teamMembersNames = existingMembers.map(
+    (teamMember) => teamMember.mailId
+  );
 
   return (
     <Box

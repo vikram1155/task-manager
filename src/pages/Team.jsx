@@ -26,6 +26,8 @@ import {
   updateTeamMember,
 } from "../utils/api";
 import CustomTableCell from "../components/CustomTableCell";
+import CustomLoader from "../components/CustomLoader";
+import CustomError from "../components/CustomError";
 
 const style = {
   position: "absolute",
@@ -44,6 +46,8 @@ function Team() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedTeamMemberId, setselectedTeamMemberId] = useState("");
   const [modalFormData, setModalFormData] = useState({});
+  const [errors, setErrors] = useState();
+  const [apiState, setApiState] = useState({ loading: true, error: false });
 
   const dispatch = useDispatch();
   const teamMembersLocal = useSelector(
@@ -55,8 +59,10 @@ function Team() {
       try {
         const getAllTeamMembers = await getAllTeamFromApi();
         dispatch(setTeamMembers(getAllTeamMembers));
+        setApiState({ loading: false, error: false });
       } catch (error) {
         console.error("Error gettings tasks:", error);
+        setApiState({ loading: false, error: true });
       }
     };
     getAllTeamMembersFn();
@@ -70,12 +76,57 @@ function Team() {
     }));
   };
 
+  const existingMembers = useSelector((state) => state.teamMembers.teamMembers);
+  console.log("a-existingMembers", existingMembers);
+
+  const validateForm = (data) => {
+    let newErrors = {};
+
+    // Email validation
+    if (!data.mailId || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.mailId)) {
+      newErrors.mailId = "Invalid email format";
+    }
+
+    // Phone number validation
+    if (!data.phone || !/^\d{10}$/.test(data.phone)) {
+      newErrors.phone = "Phone number must be 10 digits";
+    }
+
+    // Age validation (must be a number and greater than 0)
+    if (!data.age || isNaN(data.age) || Number(data.age) <= 0) {
+      newErrors.age = "Age must be a valid number";
+    }
+
+    // Check if email or phone already exists
+    if (
+      existingMembers?.some((member) => member.mailId === data.mailId) &&
+      !isEditMode
+    ) {
+      newErrors.mailId = "Mail ID already exists!";
+    }
+    if (
+      existingMembers?.some((member) => member.phone === data.phone) &&
+      !isEditMode
+    ) {
+      newErrors.phone = "Phone number already exists!";
+    }
+
+    // Store all errors at once
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0; // Return true if no errors
+  };
+
   const handleCloseModal = () => {
     setModalFormData({});
     setOpenModal(false);
   };
 
+  console.log("a-modalFormData", modalFormData);
+  console.log("a-errors", errors);
+
   const handleSave = async () => {
+    if (!validateForm(modalFormData)) return;
     if (isEditMode) {
       try {
         const updateTeamMemberRes = await updateTeamMember(
@@ -133,151 +184,200 @@ function Team() {
   // JSX
   return (
     <Box>
-      {teamMembersLocal.length ? (
-        <>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <Typography>Team members</Typography>
-            <Button variant="contained" onClick={handleOpenAddModal}>
-              Add new member
-            </Button>
-          </Box>
-
-          <Box py={4}>
-            <TableContainer
-              component={Paper}
-              sx={{
-                maxHeight: "500px",
-                overflow: "auto",
-                border: "0.5px solid #ddd",
-              }}
-            >
-              <Table aria-label="simple table" stickyHeader>
-                <TableHead>
-                  <TableRow>
-                    <CustomTableCell value="Name" />
-                    <CustomTableCell value="Age" />
-                    <CustomTableCell value="Mail ID" />
-                    <CustomTableCell value="Phone" />
-                    <CustomTableCell value="Role" />
-                    <CustomTableCell value="Remarks" />
-                    <CustomTableCell value="" />
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {teamMembersLocal.map((row) => (
-                    <TableRow key={row.mailId}>
-                      <TableCell>{row.name}</TableCell>
-                      <TableCell>{row.age}</TableCell>
-                      <TableCell>{row.mailId}</TableCell>
-                      <TableCell>{row.phone}</TableCell>
-                      <TableCell>{row.role}</TableCell>
-                      <TableCell>{row.remarks}</TableCell>
-                      <TableCell>
-                        <ManageAccountsIcon
-                          onClick={() => handleOpenEditModal(row)}
-                          sx={{ cursor: "pointer" }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-
-          <Modal
-            open={openModal}
-            onClose={handleCloseModal}
-            closeAfterTransition
-            slots={{ backdrop: Backdrop }}
-            slotProps={{ backdrop: { timeout: 500 } }}
-          >
-            <Fade in={openModal}>
-              <Box sx={style}>
-                <Typography variant="body" component="h2">
-                  {isEditMode ? "Edit Team Member" : "Add New Team Member"}
-                </Typography>
-                <Box>
-                  <CustomTextField
-                    label="Name"
-                    name="name"
-                    value={modalFormData.name || ""}
-                    onChange={handleModalFormChanges}
-                  />
-                  <CustomTextField
-                    label="Mail ID"
-                    name="mailId"
-                    value={modalFormData.mailId || ""}
-                    onChange={handleModalFormChanges}
-                    disabled={isEditMode}
-                  />
-                  <CustomTextField
-                    label="Phone Number"
-                    name="phone"
-                    value={modalFormData.phone || ""}
-                    onChange={handleModalFormChanges}
-                  />
-                  <CustomTextField
-                    label="Age"
-                    name="age"
-                    value={modalFormData.age || ""}
-                    onChange={handleModalFormChanges}
-                  />
-                  <CustomTextField
-                    label="Role"
-                    name="role"
-                    value={modalFormData.role || ""}
-                    onChange={handleModalFormChanges}
-                  />
-                  <CustomTextField
-                    label="Remarks"
-                    name="remarks"
-                    value={modalFormData.remarks || ""}
-                    onChange={handleModalFormChanges}
-                    multiline
-                    rows={3}
-                  />
-
-                  <Box
-                    sx={{ display: "flex", gap: "20px", float: "right", pt: 3 }}
-                  >
-                    {isEditMode && (
-                      <Button
-                        variant="outlined"
-                        color="secondary"
-                        onClick={handleRemoveMember}
-                      >
-                        Remove Member
-                      </Button>
-                    )}
-                    <Button
-                      variant="outlined"
-                      color="secondary"
-                      onClick={handleCloseModal}
-                    >
-                      Close
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleSave}
-                    >
-                      {isEditMode ? "Save" : "Add Member"}
-                    </Button>
-                  </Box>
-                </Box>
-              </Box>
-            </Fade>
-          </Modal>
-        </>
+      {apiState.loading ? (
+        <Box
+          sx={{
+            height: "calc(100vh - 100px)",
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <CustomLoader />
+        </Box>
+      ) : apiState.error ? (
+        <Box
+          sx={{
+            height: "calc(100vh - 150px)",
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <CustomError />
+        </Box>
       ) : (
-        <>Loading!</>
+        <>
+          {teamMembersLocal.length ? (
+            <>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Typography>Team members</Typography>
+                <Button variant="contained" onClick={handleOpenAddModal}>
+                  Add new member
+                </Button>
+              </Box>
+
+              <Box py={4}>
+                <TableContainer
+                  component={Paper}
+                  sx={{
+                    maxHeight: "500px",
+                    overflow: "auto",
+                    border: "0.5px solid #ddd",
+                  }}
+                >
+                  <Table aria-label="simple table" stickyHeader>
+                    <TableHead>
+                      <TableRow>
+                        <CustomTableCell value="Name" />
+                        <CustomTableCell value="Age" />
+                        <CustomTableCell value="Mail ID" />
+                        <CustomTableCell value="Phone" />
+                        <CustomTableCell value="Role" />
+                        <CustomTableCell value="Remarks" />
+                        <CustomTableCell value="" />
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {teamMembersLocal.map((row) => (
+                        <TableRow key={row.mailId}>
+                          <TableCell>{row.name}</TableCell>
+                          <TableCell>{row.age}</TableCell>
+                          <TableCell>{row.mailId}</TableCell>
+                          <TableCell>{row.phone}</TableCell>
+                          <TableCell>{row.role}</TableCell>
+                          <TableCell>{row.remarks}</TableCell>
+                          <TableCell>
+                            <ManageAccountsIcon
+                              onClick={() => handleOpenEditModal(row)}
+                              sx={{ cursor: "pointer" }}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+
+              <Modal
+                open={openModal}
+                onClose={handleCloseModal}
+                closeAfterTransition
+                slots={{ backdrop: Backdrop }}
+                slotProps={{ backdrop: { timeout: 500 } }}
+              >
+                <Fade in={openModal}>
+                  <Box sx={style}>
+                    <Typography variant="body" component="h2">
+                      {isEditMode ? "Edit Team Member" : "Add New Team Member"}
+                    </Typography>
+                    <Box>
+                      <CustomTextField
+                        label="Name"
+                        name="name"
+                        value={modalFormData.name || ""}
+                        onChange={handleModalFormChanges}
+                      />
+                      <CustomTextField
+                        label="Mail ID"
+                        name="mailId"
+                        value={modalFormData.mailId || ""}
+                        onChange={handleModalFormChanges}
+                        disabled={isEditMode}
+                      />
+                      {errors?.mailId && (
+                        <Typography fontSize={"small"} color="error" pl={1.5}>
+                          {errors.mailId}
+                        </Typography>
+                      )}
+                      <CustomTextField
+                        label="Phone Number"
+                        name="phone"
+                        value={modalFormData.phone || ""}
+                        onChange={handleModalFormChanges}
+                        disabled={isEditMode}
+                      />
+                      {errors?.phone && (
+                        <Typography fontSize={"small"} color="error" pl={1.5}>
+                          {errors.phone}
+                        </Typography>
+                      )}
+                      <CustomTextField
+                        label="Age"
+                        name="age"
+                        value={modalFormData.age || ""}
+                        onChange={handleModalFormChanges}
+                      />
+                      {errors?.age && (
+                        <Typography fontSize={"small"} color="error" pl={1.5}>
+                          {errors.age}
+                        </Typography>
+                      )}
+                      <CustomTextField
+                        label="Role"
+                        name="role"
+                        value={modalFormData.role || ""}
+                        onChange={handleModalFormChanges}
+                      />
+                      <CustomTextField
+                        label="Remarks"
+                        name="remarks"
+                        value={modalFormData.remarks || ""}
+                        onChange={handleModalFormChanges}
+                        multiline
+                        rows={3}
+                      />
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          gap: "20px",
+                          float: "right",
+                          pt: 3,
+                        }}
+                      >
+                        {isEditMode && (
+                          <Button
+                            variant="outlined"
+                            color="secondary"
+                            onClick={handleRemoveMember}
+                          >
+                            Remove Member
+                          </Button>
+                        )}
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          onClick={handleCloseModal}
+                        >
+                          Close
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={handleSave}
+                        >
+                          {isEditMode ? "Save" : "Add Member"}
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Fade>
+              </Modal>
+            </>
+          ) : (
+            <>No Data found!</>
+          )}
+        </>
       )}
     </Box>
   );

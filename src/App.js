@@ -33,6 +33,7 @@ import Team from "./pages/Team";
 import ManageTask from "./pages/ManageTask";
 import Notifications from "./pages/Notifications";
 import MyTasks from "./pages/MyTasks";
+import Profile from "./pages/Profile";
 
 function Layout({ children }) {
   const navigate = useNavigate();
@@ -232,6 +233,14 @@ function App() {
               element={
                 <Layout>
                   <Dashboard />
+                </Layout>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <Layout>
+                  <Profile />
                 </Layout>
               }
             />
