@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
   useNavigate,
+  useLocation,
 } from "react-router-dom";
 import {
   Box,
@@ -39,6 +40,7 @@ function Layout({ children }) {
   const navigate = useNavigate();
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const location = useLocation();
 
   const userInfo = JSON.parse(localStorage.getItem("userinfo"));
   const userInitial = userInfo?.email?.charAt(0).toUpperCase() || "?";
@@ -85,7 +87,17 @@ function Layout({ children }) {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Typography variant="h6">Task Manager</Typography>
+          <Typography
+            sx={{
+              fontWeight: "bold",
+              fontSize: 20,
+              textWrapMode: "nowrap",
+              ml: 1.5,
+              py: "1px",
+            }}
+          >
+            Task Manager
+          </Typography>
         </Box>
 
         <Box>
@@ -148,7 +160,14 @@ function Layout({ children }) {
             <IconButton color="inherit" onClick={toggleSideMenu}>
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" sx={{ textWrapMode: "nowrap", ml: 1.5 }}>
+            <Typography
+              sx={{
+                fontWeight: "bold",
+                fontSize: 20,
+                textWrapMode: "nowrap",
+                ml: 1.5,
+              }}
+            >
               Task Manager
             </Typography>
           </Box>
@@ -179,7 +198,14 @@ function Layout({ children }) {
                   {sideMenuOpen && (
                     <ListItemText
                       primary={item.text}
-                      sx={{ textWrapMode: "nowrap" }}
+                      sx={{
+                        textWrapMode: "nowrap",
+                        "& .MuiTypography-root": {
+                          fontWeight: location.pathname.includes(item.path)
+                            ? 600
+                            : 400,
+                        },
+                      }}
                     />
                   )}
                 </ListItem>

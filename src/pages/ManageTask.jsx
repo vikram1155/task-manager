@@ -1,19 +1,44 @@
-import { Box, Button } from "@mui/material";
-import React, { useState } from "react";
+import { Box, Button, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import TaskForm from "../components/TaskForm";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteTask, updateTask } from "../redux/tasksSlice";
-import { deleteTaskApi, updateTaskApi } from "../utils/api";
+import { deleteTask, setAllTasks, updateTask } from "../redux/tasksSlice";
+import { deleteTaskApi, getAllTasksFromApi, updateTaskApi } from "../utils/api";
+import CustomError from "../components/CustomError";
+import CustomLoader from "../components/CustomLoader";
+import CustomButton from "../components/CustomButton";
 
 function ManageTask() {
   const { id } = useParams();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [apiState, setApiState] = useState({ loading: true, error: false });
+
+  useEffect(() => {
+    const getAllTasks = async () => {
+      try {
+        const getTasks = await getAllTasksFromApi();
+        dispatch(setAllTasks(getTasks));
+        setApiState({ loading: false, error: false });
+      } catch (error) {
+        console.error("Error gettings tasks:", error);
+        setApiState({ loading: false, error: true });
+      }
+    };
+    getAllTasks();
+  }, [dispatch]);
+
   const allTasksFromRedux = useSelector((state) => state.tasks.allTasks);
-  const [manageTask, setManageTask] = useState(
-    allTasksFromRedux.filter((a) => a.taskId === id)[0]
-  );
+  const [manageTask, setManageTask] = useState(null);
+
+  useEffect(() => {
+    if (allTasksFromRedux.length) {
+      const task = allTasksFromRedux.find((a) => a.taskId === id);
+      setManageTask(task);
+    }
+  }, [allTasksFromRedux, id]);
 
   const handleCreateTaskFormChange = (e) => {
     const { name, value } = e.target;
@@ -37,7 +62,6 @@ function ManageTask() {
     }));
   };
 
-  const dispatch = useDispatch();
   const handleSave = async () => {
     try {
       const updatedTaskRes = await updateTaskApi(id, manageTask);
@@ -63,48 +87,76 @@ function ManageTask() {
   };
 
   return (
-    <Box>
-      Manage task - {id}
-      <TaskForm
-        formData={manageTask}
-        handleFormChange={handleCreateTaskFormChange}
-        handleFormChangeType={handleCreateTaskFormChangeType}
-        handleDateChange={handleDateChange}
-        handleDiscard={handleDiscard}
-        handleSave={handleSave}
-      />
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: 2,
-          position: "fixed",
-          bottom: "0",
-          width: "calc(100% - 40px)",
-          background: "#fff",
-          left: "0px",
-          zIndex: 1200,
-          padding: "20px",
-        }}
-      >
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={handleDiscard}
-          sx={{ textTransform: "none" }}
+    <>
+      {apiState.loading ? (
+        <Box
+          sx={{
+            height: "calc(100vh - 100px)",
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
-          Delete Task
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          sx={{ textTransform: "none" }}
+          <CustomLoader />
+        </Box>
+      ) : apiState.error ? (
+        <Box
+          sx={{
+            height: "calc(100vh - 150px)",
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
-          Update Task
-        </Button>
-      </Box>
-    </Box>
+          <CustomError />
+        </Box>
+      ) : (
+        <Box>
+            <Typography sx={{ fontWeight: "bold", fontSize: 20 }}>
+            Manage - {manageTask?.title}
+          </Typography>
+          {manageTask && (
+            <TaskForm
+              formData={manageTask}
+              handleFormChange={handleCreateTaskFormChange}
+              handleFormChangeType={handleCreateTaskFormChangeType}
+              handleDateChange={handleDateChange}
+              handleDiscard={handleDiscard}
+              handleSave={handleSave}
+            />
+          )}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 2,
+              position: "fixed",
+              bottom: "0",
+              width: "calc(100% - 40px)",
+              background: "#fff",
+              left: "0px",
+              zIndex: 1200,
+              padding: "20px",
+            }}
+          >
+            <CustomButton
+              variant="outlined"
+              color="default"
+              onClickFunction={handleDiscard}
+              title="Delete Task"
+            />
+            <CustomButton
+              variant="contained"
+              color="primary"
+              onClickFunction={handleSave}
+              title="Update Task"
+            />
+          </Box>
+        </Box>
+      )}
+    </>
   );
 }
 

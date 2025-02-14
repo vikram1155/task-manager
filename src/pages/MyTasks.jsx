@@ -9,6 +9,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +17,7 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CustomTableCell from "../components/CustomTableCell";
 
 function MyTasks() {
-  const myEmailId = localStorage.getItem("emailId") || "1markiv1155@gmail.com";
+  const myEmailId = localStorage.getItem("emailId") || "markiv1155@gmail.com";
 
   const allTasksFromRedux = useSelector((state) => state.tasks.allTasks);
   const navigate = useNavigate();
@@ -27,7 +28,9 @@ function MyTasks() {
 
   return (
     <Box>
-      My Tasks<br></br>
+      <Typography sx={{ fontWeight: "bold", fontSize: 20 }}>
+        My Tasks<br></br>
+      </Typography>
       <br></br>
       <TableContainer
         component={Paper}

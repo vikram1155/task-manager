@@ -18,7 +18,9 @@ const CustomMultiSelect = ({
 }) => {
   return (
     <FormControl fullWidth>
-      <InputLabel>{label}</InputLabel>
+      <InputLabel sx={{ "&.MuiInputLabel-root.Mui-focused": { mt: 1 } }}>
+        {label}
+      </InputLabel>
       <Select
         multiple
         value={value}
@@ -29,8 +31,12 @@ const CustomMultiSelect = ({
         sx={{
           width: "100%",
           padding: 0,
-          height: "40px",
-          marginTop: "10px",
+          "&.MuiInputBase-root": {
+            marginTop: "8px",
+          },
+          "& .MuiSelect-select": {
+            p: "8.5px",
+          },
         }}
       >
         {options.map((option, index) => (

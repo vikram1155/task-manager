@@ -1,6 +1,7 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import CustomButton from "../components/CustomButton";
 
 function LoginPage({ setAuthenticated }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -145,15 +146,14 @@ function LoginPage({ setAuthenticated }) {
           required
         />
 
-        <Button
-          fullWidth
+        <CustomButton
           variant="contained"
-          sx={{ mt: 2, textTransform: "none" }}
-          disabled={!isFormValid}
-          onClick={handleSubmit}
-        >
-          {isLogin ? "Login" : "Sign Up"}
-        </Button>
+          color="primary"
+          onClickFunction={handleSubmit}
+          title={isLogin ? "Login" : "Sign Up"}
+          sx={{ mt: 2 }}
+          fullWidth
+        />
       </Box>
 
       {/* Toggle Login/Sign Up */}

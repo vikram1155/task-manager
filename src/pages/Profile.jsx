@@ -39,8 +39,6 @@ function Profile() {
 
   const user = activeUser?.length && activeUser[0];
 
-  console.log("a-activeUser", activeUser);
-
   return (
     <Box>
       {apiState.loading ? (

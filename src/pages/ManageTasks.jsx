@@ -95,7 +95,9 @@ function ManageTasks() {
 
   return (
     <Box>
-      Manage Tasks
+      <Typography sx={{ fontWeight: "bold", fontSize: 20 }}>
+        All Tasks
+      </Typography>
       {apiState.loading ? (
         <Box
           sx={{
@@ -125,21 +127,19 @@ function ManageTasks() {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: "70px 2fr 1fr",
+              gridTemplateColumns: "2fr 1fr",
               gap: "10px",
               alignItems: "center",
               pb: 2,
             }}
           >
-            <Typography variant="body" fontWeight={700} mt={"3px"}>
-              Filters:
-            </Typography>
             <Box
               sx={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr 1fr 30px",
                 gap: "20px",
                 alignItems: "center",
+                py: 2,
               }}
             >
               <CustomMultiSelect
@@ -170,6 +170,7 @@ function ManageTasks() {
               placeholder="Search for ID, Title and Description"
               value={filters.searchValue}
               onChange={(e) => handleFilters("searchValue", e.target.value)}
+              // sx={{ m: 0 }}
             />
           </Box>
           {manageTasksTableValues.length ? (

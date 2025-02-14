@@ -6,6 +6,7 @@ import { addTask } from "../redux/tasksSlice";
 import { useNavigate } from "react-router-dom";
 import { createTaskApi } from "../utils/api";
 import { v4 as uuidv4 } from "uuid";
+import CustomButton from "../components/CustomButton";
 
 function CreateTask() {
   const [createTaskForm, setCreateTaskForm] = useState({
@@ -76,8 +77,9 @@ function CreateTask() {
 
   return (
     <Box>
-      <Typography>Create New Tasks!</Typography>
-
+      <Typography sx={{ fontWeight: "bold", fontSize: 20 }}>
+        Create New Tasks!
+      </Typography>
       <TaskForm
         formData={createTaskForm}
         handleFormChange={handleCreateTaskFormChange}
@@ -100,22 +102,18 @@ function CreateTask() {
           padding: "20px",
         }}
       >
-        <Button
+        <CustomButton
           variant="outlined"
-          color="secondary"
-          onClick={handleDiscard}
-          sx={{ textTransform: "none" }}
-        >
-          Discard
-        </Button>
-        <Button
+          color="default"
+          onClickFunction={handleDiscard}
+          title="Discard"
+        />
+        <CustomButton
           variant="contained"
           color="primary"
-          onClick={handleSave}
-          sx={{ textTransform: "none" }}
-        >
-          Save
-        </Button>
+          onClickFunction={handleSave}
+          title="Save"
+        />
       </Box>
     </Box>
   );

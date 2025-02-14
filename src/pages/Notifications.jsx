@@ -24,8 +24,6 @@ function Notifications() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  console.log("a-allTasksFromRedux", allTasksFromRedux);
-
   const currentDate = dayjs(); // Using Day.js for date handling
   const nearingDeadlineTasks = allTasksFromRedux.filter(
     (task) =>
@@ -52,7 +50,7 @@ function Notifications() {
     <Box>
       {/* Upcoming Deadlines */}
       <Box>
-        <Typography variant="body" fontWeight="bold">
+        <Typography sx={{ fontWeight: "bold", fontSize: 20 }}>
           Upcoming Deadlines
         </Typography>
         <br></br>
@@ -104,7 +102,7 @@ function Notifications() {
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
                     <TableCell component="th" scope="row">
-                      {row.taskId}
+                      {row?.taskId?.slice(0, 8)}
                     </TableCell>
                     <TableCell>{row.title}</TableCell>
                     <TableCell>{row.description}</TableCell>
@@ -133,10 +131,10 @@ function Notifications() {
 
       <br></br>
 
-      {/* Urgent Deadlines */}
+      {/* Overdue Tasks */}
       <Box>
-        <Typography variant="body" fontWeight="bold" mt={2}>
-          Urgent Deadlines
+        <Typography sx={{ fontWeight: "bold", fontSize: 20, mt: 2 }}>
+          Overdue Tasks
         </Typography>
         <br></br>
         <br></br>
@@ -187,7 +185,7 @@ function Notifications() {
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
                     <TableCell component="th" scope="row">
-                      {row.taskId}
+                      {row?.taskId?.slice(0, 8)}
                     </TableCell>
                     <TableCell>{row.title}</TableCell>
                     <TableCell>{row.description}</TableCell>

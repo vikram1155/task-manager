@@ -15,7 +15,6 @@ const TaskForm = ({
   handleDateChange,
 }) => {
   const existingMembers = useSelector((state) => state.teamMembers.teamMembers);
-  console.log("a-e", existingMembers);
   const teamMembersNames = existingMembers.map(
     (teamMember) => teamMember.mailId
   );
@@ -26,7 +25,7 @@ const TaskForm = ({
         display: "flex",
         flexDirection: "column",
         gap: 1,
-        pt: 3,
+        pt: 2,
         borderRadius: "8px",
         width: "100%",
       }}
@@ -93,6 +92,13 @@ const TaskForm = ({
           onChange={handleFormChange}
           required
         />
+        <CustomSelect
+          label="Priority"
+          name="priority"
+          value={formData.priority}
+          onChange={handleFormChangeType}
+          options={priorityOptions}
+        />
       </Box>
 
       {/* Row 3 */}
@@ -117,12 +123,12 @@ const TaskForm = ({
         />
         <Box
           sx={{
-            width: "calc(40% - 24px)",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
             alignItems: "center",
             gap: "20px",
+            width: "40%",
           }}
         >
           <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -130,15 +136,13 @@ const TaskForm = ({
               label="Deadline"
               value={formData.deadline ? dayjs(formData.deadline) : null}
               onChange={(newValue) => handleDateChange("deadline", newValue)}
+              sx={{
+                "&.MuiFormControl-root": {
+                  width: "100%",
+                },
+              }}
             />
           </LocalizationProvider>
-          <CustomSelect
-            label="Priority"
-            name="priority"
-            value={formData.priority}
-            onChange={handleFormChangeType}
-            options={priorityOptions}
-          />
         </Box>
       </Box>
 

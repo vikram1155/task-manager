@@ -28,6 +28,7 @@ import {
 import CustomTableCell from "../components/CustomTableCell";
 import CustomLoader from "../components/CustomLoader";
 import CustomError from "../components/CustomError";
+import CustomButton from "../components/CustomButton";
 
 const style = {
   position: "absolute",
@@ -77,7 +78,6 @@ function Team() {
   };
 
   const existingMembers = useSelector((state) => state.teamMembers.teamMembers);
-  console.log("a-existingMembers", existingMembers);
 
   const validateForm = (data) => {
     let newErrors = {};
@@ -121,9 +121,6 @@ function Team() {
     setModalFormData({});
     setOpenModal(false);
   };
-
-  console.log("a-modalFormData", modalFormData);
-  console.log("a-errors", errors);
 
   const handleSave = async () => {
     if (!validateForm(modalFormData)) return;
@@ -217,12 +214,17 @@ function Team() {
                   display: "flex",
                   flexDirection: "row",
                   justifyContent: "space-between",
+                  alignItems: "center",
                 }}
               >
-                <Typography>Team members</Typography>
-                <Button variant="contained" onClick={handleOpenAddModal}>
-                  Add new member
-                </Button>
+                <Typography sx={{ fontWeight: "bold", fontSize: 20 }}>
+                  Team members
+                </Typography>
+                <CustomButton
+                  variant="contained"
+                  onClickFunction={handleOpenAddModal}
+                  title="Add New Member"
+                />
               </Box>
 
               <Box py={4}>
@@ -277,7 +279,7 @@ function Team() {
               >
                 <Fade in={openModal}>
                   <Box sx={style}>
-                    <Typography variant="body" component="h2">
+                    <Typography variant="body" component="h2" py={1.5}>
                       {isEditMode ? "Edit Team Member" : "Add New Team Member"}
                     </Typography>
                     <Box>
@@ -346,28 +348,25 @@ function Team() {
                         }}
                       >
                         {isEditMode && (
-                          <Button
-                            variant="outlined"
-                            color="secondary"
-                            onClick={handleRemoveMember}
-                          >
-                            Remove Member
-                          </Button>
+                          <CustomButton
+                            variant="contained"
+                            color="default"
+                            onClickFunction={handleRemoveMember}
+                            title="Remove Member"
+                          />
                         )}
-                        <Button
+                        <CustomButton
                           variant="outlined"
-                          color="secondary"
-                          onClick={handleCloseModal}
-                        >
-                          Close
-                        </Button>
-                        <Button
+                          color="default"
+                          onClickFunction={handleCloseModal}
+                          title="Close"
+                        />
+                        <CustomButton
                           variant="contained"
                           color="primary"
-                          onClick={handleSave}
-                        >
-                          {isEditMode ? "Save" : "Add Member"}
-                        </Button>
+                          onClickFunction={handleSave}
+                          title={isEditMode ? "Save" : "Add Member"}
+                        />
                       </Box>
                     </Box>
                   </Box>
