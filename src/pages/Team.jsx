@@ -29,6 +29,8 @@ import CustomTableCell from "../components/CustomTableCell";
 import CustomLoader from "../components/CustomLoader";
 import CustomError from "../components/CustomError";
 import CustomButton from "../components/CustomButton";
+import CustomHeader from "../components/CustomHeader";
+import { colorSchemes } from "../data/theme";
 
 const style = {
   position: "absolute",
@@ -38,8 +40,9 @@ const style = {
   width: 400,
   bgcolor: "background.paper",
   boxShadow: 24,
-  p: 3,
+  p: 5,
   borderRadius: 2,
+  backgroundColor: colorSchemes.blackBg,
 };
 
 function Team() {
@@ -217,12 +220,12 @@ function Team() {
                   alignItems: "center",
                 }}
               >
-                <Typography sx={{ fontWeight: "bold", fontSize: 20 }}>
-                  Team members
-                </Typography>
+                <CustomHeader value="Team members" />
                 <CustomButton
                   variant="contained"
+                  color="default"
                   onClickFunction={handleOpenAddModal}
+                  sx={{ backgroundColor: colorSchemes.buttonBg }}
                   title="Add New Member"
                 />
               </Box>
@@ -233,7 +236,6 @@ function Team() {
                   sx={{
                     maxHeight: "500px",
                     overflow: "auto",
-                    border: "0.5px solid #ddd",
                   }}
                 >
                   <Table aria-label="simple table" stickyHeader>
@@ -251,18 +253,33 @@ function Team() {
                     <TableBody>
                       {teamMembersLocal.map((row) => (
                         <TableRow key={row.mailId}>
-                          <TableCell>{row.name}</TableCell>
-                          <TableCell>{row.age}</TableCell>
-                          <TableCell>{row.mailId}</TableCell>
-                          <TableCell>{row.phone}</TableCell>
-                          <TableCell>{row.role}</TableCell>
-                          <TableCell>{row.remarks}</TableCell>
-                          <TableCell>
+                          <CustomTableCell value={row.name} type="tableBody" />
+                          <CustomTableCell value={row.age} type="tableBody" />
+                          <CustomTableCell
+                            value={row.mailId}
+                            type="tableBody"
+                          />
+                          <CustomTableCell value={row.phone} type="tableBody" />
+                          <CustomTableCell value={row.role} type="tableBody" />
+                          <CustomTableCell
+                            value={row.remarks}
+                            type="tableBody"
+                          />
+                          <CustomTableCell
+                            value={
+                              <ManageAccountsIcon
+                                onClick={() => handleOpenEditModal(row)}
+                                sx={{ cursor: "pointer" }}
+                              />
+                            }
+                            type="tableBody"
+                          />
+                          {/* <TableCell>
                             <ManageAccountsIcon
                               onClick={() => handleOpenEditModal(row)}
                               sx={{ cursor: "pointer" }}
                             />
-                          </TableCell>
+                          </TableCell> */}
                         </TableRow>
                       ))}
                     </TableBody>
@@ -279,9 +296,11 @@ function Team() {
               >
                 <Fade in={openModal}>
                   <Box sx={style}>
-                    <Typography variant="body" component="h2" py={1.5}>
-                      {isEditMode ? "Edit Team Member" : "Add New Team Member"}
-                    </Typography>
+                    <CustomHeader
+                      value={
+                        isEditMode ? "Edit Team Member" : "Add New Team Member"
+                      }
+                    />
                     <Box>
                       <CustomTextField
                         label="Name"
@@ -357,15 +376,17 @@ function Team() {
                         )}
                         <CustomButton
                           variant="outlined"
-                          color="default"
+                          color="red"
                           onClickFunction={handleCloseModal}
                           title="Close"
+                          sx={{ backgroundColor: colorSchemes.whiteBg }}
                         />
                         <CustomButton
                           variant="contained"
-                          color="primary"
+                          color="default"
                           onClickFunction={handleSave}
                           title={isEditMode ? "Save" : "Add Member"}
+                          sx={{ backgroundColor: colorSchemes.buttonBg }}
                         />
                       </Box>
                     </Box>

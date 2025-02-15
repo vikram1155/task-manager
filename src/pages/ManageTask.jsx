@@ -8,6 +8,8 @@ import { deleteTaskApi, getAllTasksFromApi, updateTaskApi } from "../utils/api";
 import CustomError from "../components/CustomError";
 import CustomLoader from "../components/CustomLoader";
 import CustomButton from "../components/CustomButton";
+import { colorSchemes } from "../data/theme";
+import CustomHeader from "../components/CustomHeader";
 
 function ManageTask() {
   const { id } = useParams();
@@ -114,9 +116,7 @@ function ManageTask() {
         </Box>
       ) : (
         <Box>
-            <Typography sx={{ fontWeight: "bold", fontSize: 20 }}>
-            Manage - {manageTask?.title}
-          </Typography>
+          <CustomHeader value={`Manage - ${manageTask?.title}`} />
           {manageTask && (
             <TaskForm
               formData={manageTask}
@@ -134,11 +134,12 @@ function ManageTask() {
               gap: 2,
               position: "fixed",
               bottom: "0",
-              width: "calc(100% - 40px)",
-              background: "#fff",
               left: "0px",
               zIndex: 1200,
               padding: "20px",
+              width: "calc(100vw - 95px)",
+              marginLeft: "56px",
+              backgroundColor: colorSchemes.blackBg,
             }}
           >
             <CustomButton
@@ -146,12 +147,14 @@ function ManageTask() {
               color="default"
               onClickFunction={handleDiscard}
               title="Delete Task"
+              sx={{ backgroundColor: colorSchemes.whiteBg }}
             />
             <CustomButton
               variant="contained"
-              color="primary"
+              color="default"
               onClickFunction={handleSave}
               title="Update Task"
+              sx={{ backgroundColor: colorSchemes.buttonBg }}
             />
           </Box>
         </Box>

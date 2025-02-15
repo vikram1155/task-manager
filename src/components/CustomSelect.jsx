@@ -1,10 +1,27 @@
 import React from "react";
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  colors,
+} from "@mui/material";
+import { colorSchemes } from "../data/theme";
 
 const CustomSelect = ({ label, name, value, onChange, options, ...props }) => {
   return (
     <FormControl fullWidth>
-      <InputLabel sx={{ "&.MuiInputLabel-root.Mui-focused": { mt: 1 } }}>
+      <InputLabel
+        sx={{
+          "&.MuiInputLabel-root.Mui-focused": {
+            mt: 1,
+            color: colorSchemes.whiteText,
+          },
+          "&.MuiInputLabel-root": {
+            color: colorSchemes.whiteText,
+          },
+        }}
+      >
         {label}
       </InputLabel>
       <Select
@@ -20,6 +37,20 @@ const CustomSelect = ({ label, name, value, onChange, options, ...props }) => {
           },
           "& .MuiSelect-select": {
             p: "8.5px",
+            backgroundColor: colorSchemes.darkBg,
+            color: colorSchemes.whiteText,
+          },
+          "& .MuiSelect-icon": {
+            color: colorSchemes.whiteText,
+          },
+          "& .MuiFormLabel-root": {
+            color: colorSchemes.darkBg,
+          },
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: colorSchemes.darkBg,
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: colorSchemes.darkBg,
           },
         }}
       >

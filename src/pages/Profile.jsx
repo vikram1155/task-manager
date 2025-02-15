@@ -5,11 +5,12 @@ import { getAllTeamFromApi } from "../utils/api";
 import { setTeamMembers } from "../redux/teamMembersSlice";
 import CustomLoader from "../components/CustomLoader";
 import CustomError from "../components/CustomError";
+import { colorSchemes } from "../data/theme";
 
 const InfoRow = ({ label, value }) => (
   <Box display="flex" justifyContent="space-between" py={2}>
     <Typography fontWeight="500">{label}:</Typography>
-    <Typography color="text.secondary">{value || "N/A"}</Typography>
+    <Typography color={colorSchemes.whiteText}>{value || "N/A"}</Typography>
   </Box>
 );
 
@@ -76,6 +77,8 @@ function Profile() {
                 p: 2,
                 boxShadow: 3,
                 borderRadius: 2,
+                backgroundColor: colorSchemes.darkBg,
+                color: "#fff",
               }}
             >
               <CardContent>

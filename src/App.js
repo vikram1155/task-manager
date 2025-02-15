@@ -35,6 +35,7 @@ import ManageTask from "./pages/ManageTask";
 import Notifications from "./pages/Notifications";
 import MyTasks from "./pages/MyTasks";
 import Profile from "./pages/Profile";
+import { colorSchemes } from "./data/theme";
 
 function Layout({ children }) {
   const navigate = useNavigate();
@@ -69,13 +70,18 @@ function Layout({ children }) {
   ];
 
   return (
-    <Box>
+    <Box
+      sx={{
+        backgroundColor: colorSchemes.blackBg,
+        height: "calc(100vh - 52px)",
+      }}
+    >
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          backgroundColor: "#1976d2",
+          backgroundColor: colorSchemes.blackBg,
           padding: "10px 20px",
           color: "white",
           width: "calc(100% - 80px)",
@@ -93,10 +99,11 @@ function Layout({ children }) {
               fontSize: 20,
               textWrapMode: "nowrap",
               ml: 1.5,
+              color: colorSchemes.buttonBg,
               py: "1px",
             }}
           >
-            Task Manager
+            TaskHub
           </Typography>
         </Box>
 
@@ -105,7 +112,7 @@ function Layout({ children }) {
             sx={{
               width: "30px",
               height: "30px",
-              backgroundColor: "#fff",
+              backgroundColor: colorSchemes.buttonBg,
               borderRadius: "100%",
               color: "#000",
               cursor: "pointer",
@@ -144,6 +151,8 @@ function Layout({ children }) {
             transition: "width 0.3s",
             height: "100vh",
             border: "none",
+            backgroundColor: colorSchemes.darkBg,
+            zIndex: 100,
           },
         }}
       >
@@ -152,13 +161,13 @@ function Layout({ children }) {
             sx={{
               display: "flex",
               alignItems: "center",
-              backgroundColor: "#1976d2",
+              backgroundColor: colorSchemes.darkBg,
               height: "52px",
               pl: 1,
             }}
           >
             <IconButton color="inherit" onClick={toggleSideMenu}>
-              <MenuIcon />
+              <MenuIcon sx={{ color: colorSchemes.buttonBg }} />
             </IconButton>
             <Typography
               sx={{
@@ -166,9 +175,10 @@ function Layout({ children }) {
                 fontSize: 20,
                 textWrapMode: "nowrap",
                 ml: 1.5,
+                color: colorSchemes.buttonBg,
               }}
             >
-              Task Manager
+              TaskHub
             </Typography>
           </Box>
           <List>
@@ -191,7 +201,13 @@ function Layout({ children }) {
                 >
                   <Box
                     onClick={() => navigate(item.path)}
-                    sx={{ height: "24px", width: "24px" }}
+                    sx={{
+                      height: "24px",
+                      width: "24px",
+                      color: location.pathname.includes(item.path)
+                        ? colorSchemes.activeMenuColor
+                        : colorSchemes.whiteText,
+                    }}
                   >
                     {item.icon}
                   </Box>
@@ -204,6 +220,9 @@ function Layout({ children }) {
                           fontWeight: location.pathname.includes(item.path)
                             ? 600
                             : 400,
+                          color: location.pathname.includes(item.path)
+                            ? colorSchemes.activeMenuColor
+                            : colorSchemes.whiteText,
                         },
                       }}
                     />
@@ -225,8 +244,8 @@ function Layout({ children }) {
 
       <Box
         sx={{
-          margin: "52px 0px 0px 56px",
-          p: "22px",
+          p: "68px 22px 22px",
+          ml: "56px",
           transition: "margin-left 0.3s",
         }}
       >
@@ -254,14 +273,7 @@ function App() {
           </>
         ) : (
           <>
-            <Route
-              path="/"
-              element={
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              }
-            />
+            <Route path="/" element={<Navigate to="/my-tasks" replace />} />
             <Route
               path="/profile"
               element={

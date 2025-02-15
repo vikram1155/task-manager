@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Box } from "@mui/material";
 import CustomTextField from "./CustomTextField";
 import CustomSelect from "./CustomSelect";
@@ -6,7 +6,10 @@ import { priorityOptions, statusOptions, taskTypeOptions } from "../data/data";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { colorSchemes } from "../data/theme";
+import { getAllTeamFromApi } from "../utils/api";
+import { setTeamMembers } from "../redux/teamMembersSlice";
 
 const TaskForm = ({
   formData,
@@ -14,6 +17,19 @@ const TaskForm = ({
   handleFormChangeType,
   handleDateChange,
 }) => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const getAllTeamMembersFn = async () => {
+      try {
+        const getAllTeamMembers = await getAllTeamFromApi();
+        dispatch(setTeamMembers(getAllTeamMembers));
+      } catch (error) {
+        console.error("Error gettings tasks:", error);
+      }
+    };
+    getAllTeamMembersFn();
+  }, [dispatch]);
+
   const existingMembers = useSelector((state) => state.teamMembers.teamMembers);
   const teamMembersNames = existingMembers.map(
     (teamMember) => teamMember.mailId
@@ -139,6 +155,21 @@ const TaskForm = ({
               sx={{
                 "&.MuiFormControl-root": {
                   width: "100%",
+                  backgroundColor: colorSchemes.darkBg,
+                  color: colorSchemes.whiteText,
+                  borderRadius: "4px",
+                },
+                "& .MuiInputLabel-root": {
+                  color: colorSchemes.whiteText,
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: colorSchemes.whiteText,
+                },
+                "& .MuiOutlinedInput-input": {
+                  color: colorSchemes.whiteText,
+                },
+                "& .MuiSvgIcon-root": {
+                  color: colorSchemes.whiteText,
                 },
               }}
             />

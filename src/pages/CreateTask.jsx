@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { createTaskApi } from "../utils/api";
 import { v4 as uuidv4 } from "uuid";
 import CustomButton from "../components/CustomButton";
+import CustomHeader from "../components/CustomHeader";
+import { colorSchemes } from "../data/theme";
 
 function CreateTask() {
   const [createTaskForm, setCreateTaskForm] = useState({
@@ -77,9 +79,7 @@ function CreateTask() {
 
   return (
     <Box>
-      <Typography sx={{ fontWeight: "bold", fontSize: 20 }}>
-        Create New Tasks!
-      </Typography>
+      <CustomHeader value="Create New Tasks" />
       <TaskForm
         formData={createTaskForm}
         handleFormChange={handleCreateTaskFormChange}
@@ -95,11 +95,12 @@ function CreateTask() {
           gap: 2,
           position: "fixed",
           bottom: "0",
-          width: "calc(100% - 40px)",
+          width: "calc(100% - 97px)",
           background: "#fff",
-          left: "0px",
-          zIndex: 1200,
+          left: "56px",
           padding: "20px",
+          backgroundColor: colorSchemes.blackBg,
+          zIndex: 1,
         }}
       >
         <CustomButton
@@ -107,12 +108,14 @@ function CreateTask() {
           color="default"
           onClickFunction={handleDiscard}
           title="Discard"
+          sx={{ backgroundColor: colorSchemes.whiteBg }}
         />
         <CustomButton
           variant="contained"
-          color="primary"
+          color="default"
           onClickFunction={handleSave}
           title="Save"
+          sx={{ backgroundColor: colorSchemes.buttonBg }}
         />
       </Box>
     </Box>

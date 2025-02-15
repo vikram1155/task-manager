@@ -22,6 +22,8 @@ import { getAllTasksFromApi } from "../utils/api";
 import CustomTableCell from "../components/CustomTableCell";
 import CustomLoader from "../components/CustomLoader";
 import CustomError from "../components/CustomError";
+import { colorSchemes } from "../data/theme";
+import CustomHeader from "../components/CustomHeader";
 
 function ManageTasks() {
   const dispatch = useDispatch();
@@ -95,9 +97,7 @@ function ManageTasks() {
 
   return (
     <Box>
-      <Typography sx={{ fontWeight: "bold", fontSize: 20 }}>
-        All Tasks
-      </Typography>
+      <CustomHeader value="All Tasks" />
       {apiState.loading ? (
         <Box
           sx={{
@@ -179,7 +179,7 @@ function ManageTasks() {
               sx={{
                 maxHeight: "500px",
                 overflow: "auto",
-                border: "0.5px solid #ddd",
+                backgroundColor: colorSchemes.darkBg,
               }}
             >
               <Table aria-label="Tasks table" stickyHeader>
@@ -222,26 +222,44 @@ function ManageTasks() {
                       key={row.taskId}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell component="th" scope="row">
-                        {row?.taskId?.slice(0, 8)}
-                      </TableCell>
-                      <TableCell>{row.title}</TableCell>
-                      <TableCell>{row.description}</TableCell>
-                      <TableCell>{row.assignedTo}</TableCell>
-                      <TableCell>
-                        {new Date(row.deadline).toLocaleDateString("en-GB")}
-                      </TableCell>
-                      <TableCell>{row.type}</TableCell>
-                      <TableCell>{row.status}</TableCell>
-                      <TableCell>
-                        <IconButton
-                          onClick={() =>
-                            navigate(`/manage-tasks/${row.taskId}`)
-                          }
-                        >
-                          <OpenInNewIcon sx={{ fontSize: "14px" }} />
-                        </IconButton>
-                      </TableCell>
+                      <CustomTableCell
+                        value={row?.taskId?.slice(0, 8)}
+                        type="tableBody"
+                      />
+                      <CustomTableCell value={row.title} type="tableBody" />
+                      <CustomTableCell
+                        value={row.description}
+                        type="tableBody"
+                      />
+                      <CustomTableCell
+                        value={row.assignedTo}
+                        type="tableBody"
+                      />
+                      <CustomTableCell
+                        value={new Date(row.deadline).toLocaleDateString(
+                          "en-GB"
+                        )}
+                        type="tableBody"
+                      />
+                      <CustomTableCell value={row.type} type="tableBody" />
+                      <CustomTableCell value={row.status} type="tableBody" />
+                      <CustomTableCell
+                        value={
+                          <IconButton
+                            onClick={() =>
+                              navigate(`/manage-tasks/${row.taskId}`)
+                            }
+                          >
+                            <OpenInNewIcon
+                              sx={{
+                                fontSize: "14px",
+                                color: colorSchemes.whiteText,
+                              }}
+                            />
+                          </IconButton>
+                        }
+                        type="tableBody"
+                      />
                     </TableRow>
                   ))}
                 </TableBody>
