@@ -4,8 +4,8 @@ export const colorSchemes = {
   whiteBg: "#fff",
   darkBg: "#282828",
   blackBg: "#000",
-  buttonBg: "#2fdaa4",
+  primaryGreen: "#0abb92",
   buttonText: "#fff",
   iconColors: "#fff",
-  activeMenuColor: "#2fdaa4",
+  activeMenuColor: "#0abb92",
 };

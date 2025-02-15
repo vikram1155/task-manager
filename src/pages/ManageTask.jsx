@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import TaskForm from "../components/TaskForm";
@@ -154,7 +154,7 @@ function ManageTask() {
               color="default"
               onClickFunction={handleSave}
               title="Update Task"
-              sx={{ backgroundColor: colorSchemes.buttonBg }}
+              sx={{ backgroundColor: colorSchemes.primaryGreen }}
             />
           </Box>
         </Box>

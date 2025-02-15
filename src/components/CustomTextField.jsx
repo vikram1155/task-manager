@@ -36,7 +36,16 @@ const CustomTextField = ({ label, name, value, onChange, sx, ...props }) => {
         "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
           borderColor: `${colorSchemes.darkBg} !important`,
         },
-        // MuiInputBase-root-MuiOutlinedInput-root.Mui-focused .MuiOutlined Input-notchedOutline
+        "& input:-webkit-autofill": {
+          WebkitBoxShadow: `0 0 0 1000px ${colorSchemes.darkBg} inset`,
+          WebkitTextFillColor: `${colorSchemes.whiteText}`,
+          transition: "background-color 5000s ease-in-out 0s",
+        },
+        "& input:-internal-autofill-selected": {
+          appearance: "none",
+          backgroundColor: "transparent !important",
+          color: "#000 !important",
+        },
       }}
       {...props}
       s

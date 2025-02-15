@@ -4,11 +4,9 @@ import {
   Paper,
   Table,
   TableBody,
-  TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { statusOptions, taskTypeOptions } from "../data/data";
@@ -29,34 +27,34 @@ function ManageTasks() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [apiState, setApiState] = useState({ loading: true, error: false });
+  const [manageTasksTableValues, setManageTasksTableValues] = useState([]);
+  const [filteredTasks, setFilteredTasks] = useState([]);
+
+  const [filters, setFilters] = useState({
+    type: [],
+    status: [],
+    assignedTo: [],
+    searchValue: "",
+  });
 
   useEffect(() => {
     const getAllTasks = async () => {
       try {
         const getTasks = await getAllTasksFromApi();
         dispatch(setAllTasks(getTasks));
+        setManageTasksTableValues(getTasks);
+        setFilteredTasks(getTasks); // Initialize filteredTasks
         setApiState({ loading: false, error: false });
       } catch (error) {
-        console.error("Error gettings tasks:", error);
+        console.error("Error getting tasks:", error);
         setApiState({ loading: false, error: true });
       }
     };
     getAllTasks();
   }, [dispatch]);
 
-  const allTasksFromRedux = useSelector((state) => state.tasks.allTasks);
-  const [manageTasksTableValues, setManageTasksTableValues] =
-    useState(allTasksFromRedux);
-
-  const [filters, setFilters] = useState({
-    type: [], // Now an array to handle multiple selections
-    status: [], // Now an array to handle multiple selections
-    assignedTo: [],
-    searchValue: "",
-  });
-
   useEffect(() => {
-    const filteredValues = allTasksFromRedux.filter((task) => {
+    const filteredValues = manageTasksTableValues.filter((task) => {
       const matchesSearchValue =
         task.taskId.toString().includes(filters.searchValue) ||
         task.title.toLowerCase().includes(filters.searchValue.toLowerCase()) ||
@@ -80,8 +78,8 @@ function ManageTasks() {
       );
     });
 
-    setManageTasksTableValues(filteredValues);
-  }, [filters, allTasksFromRedux]);
+    setFilteredTasks(filteredValues);
+  }, [filters, manageTasksTableValues]);
 
   const handleFilters = (type, value) => {
     setFilters((prevFilters) => ({
@@ -173,7 +171,7 @@ function ManageTasks() {
               // sx={{ m: 0 }}
             />
           </Box>
-          {manageTasksTableValues.length ? (
+          {filteredTasks.length ? (
             <TableContainer
               component={Paper}
               sx={{
@@ -217,7 +215,7 @@ function ManageTasks() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {manageTasksTableValues.map((row) => (
+                  {filteredTasks.map((row) => (
                     <TableRow
                       key={row.taskId}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

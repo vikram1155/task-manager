@@ -21,7 +21,6 @@ import {
   Tooltip,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import CreateTask from "./pages/CreateTask";
@@ -36,6 +35,7 @@ import Notifications from "./pages/Notifications";
 import MyTasks from "./pages/MyTasks";
 import Profile from "./pages/Profile";
 import { colorSchemes } from "./data/theme";
+import taskHubLogo from "./assets/taskHubLogo.svg";
 
 function Layout({ children }) {
   const navigate = useNavigate();
@@ -99,12 +99,14 @@ function Layout({ children }) {
               fontSize: 20,
               textWrapMode: "nowrap",
               ml: 1.5,
-              color: colorSchemes.buttonBg,
+              pr: 1.2,
+              color: colorSchemes.primaryGreen,
               py: "1px",
             }}
           >
             TaskHub
           </Typography>
+          <img src={taskHubLogo} alt="TaskHub Logo" style={{ width: "24px" }} />
         </Box>
 
         <Box>
@@ -112,7 +114,7 @@ function Layout({ children }) {
             sx={{
               width: "30px",
               height: "30px",
-              backgroundColor: colorSchemes.buttonBg,
+              backgroundColor: colorSchemes.primaryGreen,
               borderRadius: "100%",
               color: "#000",
               cursor: "pointer",
@@ -125,6 +127,7 @@ function Layout({ children }) {
                 alignItems: "center",
                 justifyContent: "center",
                 height: "100%",
+                fontWeight: 600,
               }}
             >
               {userInitial}
@@ -135,8 +138,15 @@ function Layout({ children }) {
             open={Boolean(menuAnchorEl)}
             onClose={closeMenu}
           >
-            <MenuItem onClick={() => navigate("/profile")}>Profile</MenuItem>
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            <MenuItem
+              onClick={() => navigate("/profile")}
+              sx={{ fontSize: "14px" }}
+            >
+              Profile
+            </MenuItem>
+            <MenuItem onClick={handleLogout} sx={{ fontSize: "14px" }}>
+              Logout
+            </MenuItem>
           </Menu>
         </Box>
       </Box>
@@ -167,7 +177,7 @@ function Layout({ children }) {
             }}
           >
             <IconButton color="inherit" onClick={toggleSideMenu}>
-              <MenuIcon sx={{ color: colorSchemes.buttonBg }} />
+              <MenuIcon sx={{ color: colorSchemes.primaryGreen }} />
             </IconButton>
             <Typography
               sx={{
@@ -175,11 +185,17 @@ function Layout({ children }) {
                 fontSize: 20,
                 textWrapMode: "nowrap",
                 ml: 1.5,
-                color: colorSchemes.buttonBg,
+                pr: 1.5,
+                color: colorSchemes.primaryGreen,
               }}
             >
               TaskHub
             </Typography>
+            <img
+              src={taskHubLogo}
+              alt="TaskHub Logo"
+              style={{ width: "24px" }}
+            />
           </Box>
           <List>
             {sideMenuItems.map((item, index) => (

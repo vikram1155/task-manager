@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Button, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import TaskForm from "../components/TaskForm";
 import { useDispatch } from "react-redux";
 import { addTask } from "../redux/tasksSlice";
@@ -59,8 +59,8 @@ function CreateTask() {
       const newTask = await createTaskApi(createTaskFormModified);
       if (newTask?.status?.code === 200) {
         dispatch(addTask(createTaskFormModified));
+        navigate("/manage-tasks");
       }
-      navigate("/manage-tasks");
     } catch (error) {
       console.error("Error saving task:", error);
     }
@@ -115,7 +115,9 @@ function CreateTask() {
           color="default"
           onClickFunction={handleSave}
           title="Save"
-          sx={{ backgroundColor: colorSchemes.buttonBg }}
+          sx={{
+            backgroundColor: colorSchemes.primaryGreen,
+          }}
         />
       </Box>
     </Box>

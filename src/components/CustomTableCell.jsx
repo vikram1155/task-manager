@@ -22,7 +22,7 @@ const CustomTableCell = ({ value, sx, type }) => {
         fontWeight: type === "tableBody" ? 400 : 600,
         fontSize: type === "tableBody" ? "14px" : "16px",
         color:
-          type === "tableBody" ? colorSchemes.whiteText : colorSchemes.buttonBg,
+          type === "tableBody" ? colorSchemes.whiteText : colorSchemes.primaryGreen,
       }}
     >
       {value}
