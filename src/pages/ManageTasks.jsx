@@ -88,10 +88,9 @@ function ManageTasks() {
     }));
   };
 
-  const existingMembers = useSelector((state) => state.teamMembers.teamMembers);
-  const teamMembersNames = existingMembers.map(
-    (teamMember) => teamMember.email
-  );
+  const teamMembersNames = [
+    ...new Set(filteredTasks.map((teamMember) => teamMember.assignedTo)),
+  ];
 
   return (
     <Box>
