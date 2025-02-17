@@ -36,6 +36,8 @@ import MyTasks from "./pages/MyTasks";
 import Profile from "./pages/Profile";
 import { colorSchemes } from "./data/theme";
 import taskHubLogo from "./assets/taskHubLogo.svg";
+import CustomSnackBar from "./components/CustomSnackBar";
+import { useSelector } from "react-redux";
 
 function Layout({ children }) {
   const navigate = useNavigate();
@@ -54,7 +56,8 @@ function Layout({ children }) {
   const handleLogout = () => {
     localStorage.removeItem("userinfo");
     localStorage.setItem("isAuthenticated", "false");
-    navigate("/login");
+    window.location.href = "/";
+    // navigate("/");
   };
 
   const sideMenuItems = [
@@ -275,9 +278,15 @@ function App() {
   const [isAuthenticated, setAuthenticated] = useState(
     localStorage.getItem("isAuthenticated") === "true"
   );
+  const snackbar = useSelector((state) => state.snackbar);
 
   return (
     <Router>
+      <CustomSnackBar
+        message={snackbar.message}
+        severity={snackbar.severity}
+        open={snackbar.open}
+      />
       <Routes>
         {!isAuthenticated ? (
           <>

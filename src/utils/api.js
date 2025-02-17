@@ -98,3 +98,35 @@ export const deleteMemberApi = async (teamMemberId) => {
     throw error;
   }
 };
+
+// Signup API
+export const createNewUserFromApi = async (userData) => {
+  try {
+    const response = await api.post(API_ENDPOINTS.SIGNUP, userData);
+    return response.data;
+  } catch (error) {
+    console.error("Signup API Error:", error);
+    throw error;
+  }
+};
+
+// Login API
+export const loginUserFromApi = async (loginData) => {
+  try {
+    const response = await api.post(API_ENDPOINTS.LOGIN, loginData);
+    return response.data;
+  } catch (error) {
+    console.error("Login API Error:", error);
+    throw error;
+  }
+};
+
+export const getAllUsersFromApi = async () => {
+  try {
+    const response = await api.get(API_ENDPOINTS.USERS);
+    return response.data;
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
+};

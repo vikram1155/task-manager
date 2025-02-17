@@ -1,4 +1,4 @@
-import { Box, Fade, Modal, Typography } from "@mui/material";
+import { Box, Fade, Modal, Tooltip } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableContainer from "@mui/material/TableContainer";
@@ -22,6 +22,7 @@ import {
   createTeamMember,
   deleteMemberApi,
   getAllTeamFromApi,
+  getAllUsersFromApi,
   updateTeamMember,
 } from "../utils/api";
 import CustomTableCell from "../components/CustomTableCell";
@@ -30,13 +31,15 @@ import CustomError from "../components/CustomError";
 import CustomButton from "../components/CustomButton";
 import CustomHeader from "../components/CustomHeader";
 import { colorSchemes } from "../data/theme";
+import CustomSelect from "../components/CustomSelect";
+import { showSnackbar } from "../redux/snackbarSlice";
 
 const style = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: { xs: 280, md: 400 },
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 5,
@@ -49,14 +52,14 @@ function Team() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedTeamMemberId, setselectedTeamMemberId] = useState("");
   const [modalFormData, setModalFormData] = useState({});
-  const [errors, setErrors] = useState();
   const [apiState, setApiState] = useState({ loading: true, error: false });
-
+  const [allUsers, setAllUsers] = useState();
   const dispatch = useDispatch();
   const teamMembersLocal = useSelector(
     (state) => state.teamMembers.teamMembers
   );
 
+  // API calls
   useEffect(() => {
     const getAllTeamMembersFn = async () => {
       try {
@@ -68,64 +71,41 @@ function Team() {
         setApiState({ loading: false, error: true });
       }
     };
+    const getAllUsersFromApiFn = async () => {
+      try {
+        const response = await getAllUsersFromApi();
+        setAllUsers(response);
+      } catch (error) {
+        console.error("Error gettings users:", error);
+      }
+    };
     getAllTeamMembersFn();
+    getAllUsersFromApiFn();
   }, [dispatch]);
 
-  const handleModalFormChanges = (e) => {
-    const { name, value } = e.target;
-    setModalFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const existingMembers = useSelector((state) => state.teamMembers.teamMembers);
-
-  const validateForm = (data) => {
-    let newErrors = {};
-
-    // Email validation
-    if (!data.mailId || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.mailId)) {
-      newErrors.mailId = "Invalid email format";
-    }
-
-    // Phone number validation
-    if (!data.phone || !/^\d{10}$/.test(data.phone)) {
-      newErrors.phone = "Phone number must be 10 digits";
-    }
-
-    // Age validation (must be a number and greater than 0)
-    if (!data.age || isNaN(data.age) || Number(data.age) <= 0) {
-      newErrors.age = "Age must be a valid number";
-    }
-
-    // Check if email or phone already exists
-    if (
-      existingMembers?.some((member) => member.mailId === data.mailId) &&
-      !isEditMode
-    ) {
-      newErrors.mailId = "Mail ID already exists!";
-    }
-    if (
-      existingMembers?.some((member) => member.phone === data.phone) &&
-      !isEditMode
-    ) {
-      newErrors.phone = "Phone number already exists!";
-    }
-
-    // Store all errors at once
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0; // Return true if no errors
-  };
-
+  // Modal
+  // Close Modal
   const handleCloseModal = () => {
     setModalFormData({});
     setOpenModal(false);
   };
+  // Edit Modal
+  const handleOpenEditModal = (row) => {
+    setIsEditMode(true);
+    setselectedTeamMemberId(row.teamMemberId);
+    setModalFormData(
+      teamMembersLocal.filter((a) => a.teamMemberId === row.teamMemberId)[0]
+    );
+    setOpenModal(true);
+  };
+  // Open Modal
+  const handleOpenAddModal = () => {
+    setIsEditMode(false);
+    setOpenModal(true);
+  };
 
+  // Functions
   const handleSave = async () => {
-    if (!validateForm(modalFormData)) return;
     if (isEditMode) {
       try {
         const updateTeamMemberRes = await updateTeamMember(
@@ -134,6 +114,7 @@ function Team() {
         );
         if (updateTeamMemberRes?.status?.code === 200) {
           dispatch(updateMember(modalFormData));
+          dispatch(showSnackbar("Updated Successfully!"));
         }
       } catch (error) {
         console.error("Error updating member:", error);
@@ -147,6 +128,7 @@ function Team() {
         const createTeamMemberRes = await createTeamMember(newMemberWithId);
         if (createTeamMemberRes?.status?.code === 200) {
           dispatch(addMember(newMemberWithId));
+          dispatch(showSnackbar("Member Added Successfully!"));
         }
       } catch (error) {
         console.error("Error creating member:", error);
@@ -155,30 +137,74 @@ function Team() {
     handleCloseModal();
   };
 
-  const handleOpenEditModal = (row) => {
-    setIsEditMode(true);
-    setselectedTeamMemberId(row.teamMemberId);
-    setModalFormData(row);
-    setOpenModal(true);
-  };
-
-  const handleOpenAddModal = () => {
-    setIsEditMode(false);
-    setModalFormData({});
-    setOpenModal(true);
-  };
-
   const handleRemoveMember = async () => {
     try {
       const deleteMemberRes = await deleteMemberApi(selectedTeamMemberId);
       if (deleteMemberRes?.status?.code === 200) {
         dispatch(deleteMember(selectedTeamMemberId));
+        dispatch(showSnackbar("Removed Member Successfully!"));
       }
     } catch (error) {
       console.error("Error deleteing member:", error);
     }
     handleCloseModal();
   };
+
+  // Users DB
+  const [selectedUser, setSelectedUser] = useState();
+
+  useEffect(() => {
+    setSelectedUser(
+      allUsers?.filter((user) => user.email === modalFormData.email)[0]
+    );
+  }, [allUsers, modalFormData.email]);
+
+  useEffect(() => {
+    !isEditMode &&
+      setModalFormData((prev) => ({
+        ...prev,
+        access: "",
+        remarks: "",
+        age: selectedUser?.age,
+        email: selectedUser?.email,
+        name: selectedUser?.name,
+        role: selectedUser?.role,
+        phone: selectedUser?.phone,
+      }));
+  }, [selectedUser, isEditMode]);
+
+  const handleInputChange = (name) => (e) => {
+    setModalFormData((prev) => ({
+      ...prev,
+      [name]: e.target.value,
+    }));
+  };
+
+  const fields = isEditMode
+    ? ["name", "email", "phone", "age", "role"]
+    : ["name", "phone", "age", "role"];
+
+  const renderFields = () =>
+    fields.map((field) => (
+      <CustomTextField
+        key={field}
+        label={field.charAt(0).toUpperCase() + field.slice(1)}
+        name={field}
+        value={modalFormData?.[field] || ""}
+        disabled
+      />
+    ));
+
+  const availableUsersOptions = allUsers
+    ?.filter(
+      (user) => !teamMembersLocal?.some((member) => member.email === user.email)
+    )
+    .map((user) => user.email);
+
+  const userInfo = JSON.parse(localStorage.getItem("userinfo"));
+  const activeUser = teamMembersLocal.find(
+    (member) => member.email === userInfo?.email
+  );
 
   // JSX
   return (
@@ -220,15 +246,26 @@ function Team() {
                 }}
               >
                 <CustomHeader value="Team members" />
-                <CustomButton
-                  variant="contained"
-                  color="default"
-                  onClickFunction={handleOpenAddModal}
-                  sx={{
-                    backgroundColor: colorSchemes.primaryGreen,
-                  }}
-                  title="Add New Member"
-                />
+                <Tooltip
+                  title={
+                    activeUser?.access !== "Admin" && "Requires Admin Access"
+                  }
+                  placement={"top"}
+                  disableInteractive
+                >
+                  <span>
+                    <CustomButton
+                      variant="contained"
+                      color="default"
+                      onClickFunction={handleOpenAddModal}
+                      sx={{
+                        backgroundColor: colorSchemes.primaryGreen,
+                      }}
+                      title="Add New Member"
+                      disabled={activeUser?.access !== "Admin"}
+                    />
+                  </span>
+                </Tooltip>
               </Box>
 
               <Box py={4}>
@@ -253,13 +290,10 @@ function Team() {
                     </TableHead>
                     <TableBody>
                       {teamMembersLocal.map((row) => (
-                        <TableRow key={row.mailId}>
+                        <TableRow key={row.email}>
                           <CustomTableCell value={row.name} type="tableBody" />
                           <CustomTableCell value={row.age} type="tableBody" />
-                          <CustomTableCell
-                            value={row.mailId}
-                            type="tableBody"
-                          />
+                          <CustomTableCell value={row.email} type="tableBody" />
                           <CustomTableCell value={row.phone} type="tableBody" />
                           <CustomTableCell value={row.role} type="tableBody" />
                           <CustomTableCell
@@ -268,136 +302,138 @@ function Team() {
                           />
                           <CustomTableCell
                             value={
-                              <ManageAccountsIcon
-                                onClick={() => handleOpenEditModal(row)}
-                                sx={{ cursor: "pointer" }}
-                              />
+                              <Tooltip
+                                title={
+                                  activeUser?.access !== "Admin" &&
+                                  "Requires Admin Access"
+                                }
+                                placement={"top"}
+                                disableInteractive
+                              >
+                                <ManageAccountsIcon
+                                  onClick={() =>
+                                    activeUser?.access === "Admin" &&
+                                    handleOpenEditModal(row)
+                                  }
+                                  sx={{
+                                    cursor:
+                                      activeUser?.access === "Admin" &&
+                                      "pointer",
+                                    opacity:
+                                      activeUser?.access !== "Admin" && 0.5,
+                                  }}
+                                />
+                              </Tooltip>
                             }
                             type="tableBody"
                           />
-                          {/* <TableCell>
-                            <ManageAccountsIcon
-                              onClick={() => handleOpenEditModal(row)}
-                              sx={{ cursor: "pointer" }}
-                            />
-                          </TableCell> */}
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
               </Box>
-
-              <Modal
-                open={openModal}
-                onClose={handleCloseModal}
-                closeAfterTransition
-                slots={{ backdrop: Backdrop }}
-                slotProps={{ backdrop: { timeout: 500 } }}
-              >
-                <Fade in={openModal}>
-                  <Box sx={style}>
-                    <CustomHeader
-                      value={
-                        isEditMode ? "Edit Team Member" : "Add New Team Member"
-                      }
-                    />
-                    <Box>
-                      <CustomTextField
-                        label="Name"
-                        name="name"
-                        value={modalFormData.name || ""}
-                        onChange={handleModalFormChanges}
-                      />
-                      <CustomTextField
-                        label="Mail ID"
-                        name="mailId"
-                        value={modalFormData.mailId || ""}
-                        onChange={handleModalFormChanges}
-                        disabled={isEditMode}
-                      />
-                      {errors?.mailId && (
-                        <Typography fontSize={"small"} color="error" pl={1.5}>
-                          {errors.mailId}
-                        </Typography>
-                      )}
-                      <CustomTextField
-                        label="Phone Number"
-                        name="phone"
-                        value={modalFormData.phone || ""}
-                        onChange={handleModalFormChanges}
-                        disabled={isEditMode}
-                      />
-                      {errors?.phone && (
-                        <Typography fontSize={"small"} color="error" pl={1.5}>
-                          {errors.phone}
-                        </Typography>
-                      )}
-                      <CustomTextField
-                        label="Age"
-                        name="age"
-                        value={modalFormData.age || ""}
-                        onChange={handleModalFormChanges}
-                      />
-                      {errors?.age && (
-                        <Typography fontSize={"small"} color="error" pl={1.5}>
-                          {errors.age}
-                        </Typography>
-                      )}
-                      <CustomTextField
-                        label="Role"
-                        name="role"
-                        value={modalFormData.role || ""}
-                        onChange={handleModalFormChanges}
+            </>
+          ) : (
+            <>No Data found!</>
+          )}
+          {/* Modal */}
+          <Modal
+            open={openModal}
+            onClose={handleCloseModal}
+            closeAfterTransition
+            slots={{ backdrop: Backdrop }}
+            slotProps={{ backdrop: { timeout: 500 } }}
+          >
+            <Fade in={openModal}>
+              <Box sx={style}>
+                <CustomHeader
+                  value={
+                    isEditMode ? "Edit Team Member" : "Add New Team Member"
+                  }
+                />
+                <Box>
+                  {isEditMode ? (
+                    <>
+                      {renderFields()}
+                      <CustomSelect
+                        label="Edit Access"
+                        name="access"
+                        value={modalFormData.access}
+                        onChange={handleInputChange("access")}
+                        options={["Admin", "User"]}
                       />
                       <CustomTextField
                         label="Remarks"
                         name="remarks"
                         value={modalFormData.remarks || ""}
-                        onChange={handleModalFormChanges}
+                        onChange={handleInputChange("remarks")}
                         multiline
                         rows={3}
                       />
-
-                      <Box
-                        sx={{
-                          display: "flex",
-                          gap: "20px",
-                          float: "right",
-                          pt: 3,
-                        }}
-                      >
-                        {isEditMode && (
-                          <CustomButton
-                            variant="contained"
-                            color="default"
-                            onClickFunction={handleRemoveMember}
-                            title="Remove Member"
+                    </>
+                  ) : (
+                    <>
+                      <CustomSelect
+                        label="Add From All Users"
+                        name="email"
+                        value={modalFormData.email}
+                        onChange={handleInputChange("email")}
+                        options={availableUsersOptions}
+                      />
+                      {modalFormData.email && (
+                        <>
+                          {renderFields()}
+                          <CustomSelect
+                            label="Edit Access"
+                            name="access"
+                            value={modalFormData.access}
+                            onChange={handleInputChange("access")}
+                            options={["Admin", "User"]}
                           />
-                        )}
-                        <CustomButton
-                          variant="outlined"
-                          color="red"
-                          onClickFunction={handleCloseModal}
-                          title="Close"
-                          sx={{ backgroundColor: colorSchemes.whiteBg }}
-                        />
-                        <CustomButton
-                          variant="contained"
-                          color="default"
-                          onClickFunction={handleSave}
-                          title={isEditMode ? "Save" : "Add Member"}
-                          sx={{ backgroundColor: colorSchemes.primaryGreen }}
-                        />
-                      </Box>
-                    </Box>
+                          <CustomTextField
+                            label="Remarks"
+                            name="remarks"
+                            value={modalFormData.remarks || ""}
+                            onChange={handleInputChange("remarks")}
+                            multiline
+                            rows={3}
+                          />
+                        </>
+                      )}
+                    </>
+                  )}
+                  <Box
+                    sx={{ display: "flex", gap: "20px", float: "right", pt: 3 }}
+                  >
+                    {isEditMode && (
+                      <CustomButton
+                        variant="outlined"
+                        color="warning"
+                        onClickFunction={handleRemoveMember}
+                        sx={{ backgroundColor: colorSchemes.whiteBg }}
+                        title="Remove Member"
+                      />
+                    )}
+                    <CustomButton
+                      variant="outlined"
+                      color="red"
+                      onClickFunction={handleCloseModal}
+                      title="Close"
+                      sx={{ backgroundColor: colorSchemes.whiteBg }}
+                    />
+                    <CustomButton
+                      variant="contained"
+                      color="default"
+                      onClickFunction={handleSave}
+                      title={isEditMode ? "Save" : "Add Member"}
+                      sx={{ backgroundColor: colorSchemes.primaryGreen }}
+                    />
                   </Box>
-                </Fade>
-              </Modal>
-            </>
-          ) : (
-            <>No Data found!</>
-          )}
+                </Box>
+              </Box>
+            </Fade>
+          </Modal>
         </>
       )}
     </Box>

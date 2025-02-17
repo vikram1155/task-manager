@@ -90,7 +90,7 @@ function ManageTasks() {
 
   const existingMembers = useSelector((state) => state.teamMembers.teamMembers);
   const teamMembersNames = existingMembers.map(
-    (teamMember) => teamMember.mailId
+    (teamMember) => teamMember.email
   );
 
   return (

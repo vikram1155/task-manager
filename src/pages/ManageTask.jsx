@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import TaskForm from "../components/TaskForm";
@@ -10,6 +10,7 @@ import CustomLoader from "../components/CustomLoader";
 import CustomButton from "../components/CustomButton";
 import { colorSchemes } from "../data/theme";
 import CustomHeader from "../components/CustomHeader";
+import { showSnackbar } from "../redux/snackbarSlice";
 
 function ManageTask() {
   const { id } = useParams();
@@ -33,12 +34,23 @@ function ManageTask() {
   }, [dispatch]);
 
   const allTasksFromRedux = useSelector((state) => state.tasks.allTasks);
+  const [initialData, setInitialData] = useState();
   const [manageTask, setManageTask] = useState(null);
+
+  const [updateTaskButtonDisabled, setUpdateTaskButtonDisabled] =
+    useState(true);
 
   useEffect(() => {
     if (allTasksFromRedux.length) {
       const task = allTasksFromRedux.find((a) => a.taskId === id);
-      setManageTask(task);
+      setManageTask(() => ({
+        ...task,
+        assignee: JSON.parse(localStorage.getItem("userinfo")).email,
+      }));
+      setInitialData(() => ({
+        ...task,
+        assignee: JSON.parse(localStorage.getItem("userinfo")).email,
+      }));
     }
   }, [allTasksFromRedux, id]);
 
@@ -69,6 +81,7 @@ function ManageTask() {
       const updatedTaskRes = await updateTaskApi(id, manageTask);
       if (updatedTaskRes?.status?.code === 200) {
         dispatch(updateTask(manageTask));
+        dispatch(showSnackbar("Task Updated Successfully!"));
         navigate("/manage-tasks");
       }
     } catch (error) {
@@ -81,12 +94,35 @@ function ManageTask() {
       const deleteTaskRes = await deleteTaskApi(id);
       if (deleteTaskRes?.status?.code === 200) {
         dispatch(deleteTask(id));
+        dispatch(showSnackbar("Task Deleted Successfully!"));
       }
     } catch (error) {
       console.error("Error deleting task:", error);
     }
     navigate("/manage-tasks");
   };
+
+  useEffect(() => {
+    if (!initialData || !manageTask) {
+      setUpdateTaskButtonDisabled(true);
+      return;
+    }
+
+    const isEqual = Object.keys(initialData).every((key) => {
+      const initialValue = initialData[key];
+      const currentValue = manageTask[key];
+
+      if (key === "deadline" || key === "assignedOn") {
+        return (
+          new Date(initialValue).getTime() === new Date(currentValue).getTime()
+        );
+      }
+
+      return initialValue === currentValue;
+    });
+
+    setUpdateTaskButtonDisabled(isEqual);
+  }, [manageTask, initialData]);
 
   return (
     <>
@@ -149,13 +185,22 @@ function ManageTask() {
               title="Delete Task"
               sx={{ backgroundColor: colorSchemes.whiteBg }}
             />
-            <CustomButton
-              variant="contained"
-              color="default"
-              onClickFunction={handleSave}
-              title="Update Task"
-              sx={{ backgroundColor: colorSchemes.primaryGreen }}
-            />
+            <Tooltip
+              title={"No change to updates"}
+              placement={"top"}
+              disableInteractive
+            >
+              <span>
+                <CustomButton
+                  variant="contained"
+                  color="default"
+                  onClickFunction={handleSave}
+                  title="Update Task"
+                  sx={{ backgroundColor: colorSchemes.primaryGreen }}
+                  disabled={updateTaskButtonDisabled}
+                />
+              </span>
+            </Tooltip>
           </Box>
         </Box>
       )}

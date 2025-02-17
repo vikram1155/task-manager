@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import CustomTextField from "./CustomTextField";
 import CustomSelect from "./CustomSelect";
@@ -6,9 +6,9 @@ import { priorityOptions, statusOptions, taskTypeOptions } from "../data/data";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { colorSchemes } from "../data/theme";
-import { getAllTeamFromApi } from "../utils/api";
+import { getAllTeamFromApi, getAllUsersFromApi } from "../utils/api";
 import { setTeamMembers } from "../redux/teamMembersSlice";
 
 const TaskForm = ({
@@ -18,6 +18,7 @@ const TaskForm = ({
   handleDateChange,
 }) => {
   const dispatch = useDispatch();
+  const [allUsers, setAllUsers] = useState();
   useEffect(() => {
     const getAllTeamMembersFn = async () => {
       try {
@@ -27,13 +28,18 @@ const TaskForm = ({
         console.error("Error gettings tasks:", error);
       }
     };
+    // All users
+    const getAllUsersFromApiFn = async () => {
+      try {
+        const response = await getAllUsersFromApi();
+        setAllUsers(response);
+      } catch (error) {
+        console.error("Error gettings users:", error);
+      }
+    };
     getAllTeamMembersFn();
+    getAllUsersFromApiFn();
   }, [dispatch]);
-
-  const existingMembers = useSelector((state) => state.teamMembers.teamMembers);
-  const teamMembersNames = existingMembers.map(
-    (teamMember) => teamMember.mailId
-  );
 
   return (
     <Box
@@ -73,8 +79,9 @@ const TaskForm = ({
           label="Assignee"
           name="assignee"
           value={formData.assignee}
-          onChange={handleFormChange}
+          // onChange={handleFormChange}
           required
+          disabled
         />
       </Box>
 
@@ -87,13 +94,15 @@ const TaskForm = ({
           gap: 3,
         }}
       >
-        <CustomSelect
-          label="Assign To"
-          name="assignedTo"
-          value={formData.assignedTo}
-          onChange={handleFormChangeType}
-          options={teamMembersNames}
-        />
+        {allUsers?.length && (
+          <CustomSelect
+            label="Assign To"
+            name="assignedTo"
+            value={formData.assignedTo}
+            onChange={handleFormChangeType}
+            options={allUsers?.map((user) => user.email)}
+          />
+        )}
         <CustomSelect
           label="Status"
           name="status"

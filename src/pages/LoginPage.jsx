@@ -6,58 +6,153 @@ import { colorSchemes } from "../data/theme";
 import CustomTextField from "../components/CustomTextField";
 import CustomHeader from "../components/CustomHeader";
 import taskHubLogo from "../assets/taskHubLogo.svg";
+import {
+  createNewUserFromApi,
+  getAllUsersFromApi,
+  loginUserFromApi,
+} from "../utils/api";
+import { useDispatch, useSelector } from "react-redux";
+import { setTeamMembers } from "../redux/teamMembersSlice";
+import { showSnackbar } from "../redux/snackbarSlice";
 
 function LoginPage({ setAuthenticated }) {
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState("");
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     name: "",
-    age: "",
+    age: null,
     role: "",
     password: "",
     email: "",
+    phone: "",
   });
-  const [isFormValid, setIsFormValid] = useState(false);
   const navigate = useNavigate();
-  console.log("a-isFormValid", isFormValid);
+
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === "age") {
+      setFormData((prev) => ({ ...prev, [name]: Number(value) }));
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  useEffect(() => {
-    const { name, role, password, email } = formData;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation
-    const isEmailValid = emailRegex.test(email);
-    const areFieldsFilled =
-      email && password && (!isLogin ? name && role : true);
+  // Error Handlers
+  const [formErrors, setFormErrors] = useState([]);
 
-    setIsFormValid(isEmailValid && areFieldsFilled);
+  useEffect(() => {
+    const errors = [];
+    const { name, role, password, email, age, phone } = formData;
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) errors.push({ field: "email", error: "Email is required" });
+    else if (!emailRegex.test(email))
+      errors.push({ field: "email", error: "Invalid email format" });
+
+    // Password validation
+    if (!password)
+      errors.push({ field: "password", error: "Password is required" });
+
+    // Name validation
+    if (!isLogin && !name)
+      errors.push({ field: "name", error: "Name is required" });
+
+    // Role validation
+    if (!isLogin && !role)
+      errors.push({ field: "role", error: "Role is required" });
+
+    // Age validation
+    if (age && !/^[0-9]+$/.test(age)) {
+      errors.push({ field: "age", error: "Age must be a number" });
+    }
+
+    // Phone validation
+    if (!phone)
+      errors.push({ field: "phone", error: "Phone number is required" });
+    else if (!/^[0-9]{10}$/.test(phone)) {
+      errors.push({ field: "phone", error: "Phone number must be 10 digits" });
+    }
+
+    setFormErrors(errors);
   }, [formData, isLogin]);
 
-  // Handle form submission
-  const handleSubmit = () => {
-    const { email, password, name, role } = formData;
+  // Validations
+  const isFormValid =
+    formErrors.length === 0 && Object.values(formData).every((val) => val);
+  const isFormFilled = Object.values(formData).every((val) => val);
 
-    if (isLogin) {
-      // Login logic
-      if (email === "markiv1155@gmail.com" && password === "123") {
-        const userInfo = { name, role, password, email, valid: true };
-        localStorage.setItem("userinfo", JSON.stringify(userInfo));
-        localStorage.setItem("isAuthenticated", "true");
-        setAuthenticated(true);
-        navigate("/");
-      } else {
-        setError("Invalid credentials! Retry!");
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isLoginFieldsFilled =
+    isLogin &&
+    formData.email !== "" &&
+    formData.password !== "" &&
+    emailRegex.test(formData.email);
+
+  useEffect(() => {
+    const getAllUsersFromApiFn = async () => {
+      try {
+        const getAllTeamMembers = await getAllUsersFromApi();
+        dispatch(setTeamMembers(getAllTeamMembers));
+      } catch (error) {
+        console.error("Error gettings tasks:", error);
       }
-    } else {
-      // Sign up logic
-      const userInfo = { name, role, password, email, valid: true };
-      localStorage.setItem("userinfo", JSON.stringify(userInfo));
+    };
+    getAllUsersFromApiFn();
+  }, [dispatch]);
+
+  const existingMembers = useSelector((state) => state.teamMembers.teamMembers);
+
+  const handleSubmit = async () => {
+    const authenticateUser = (userDetails) => {
+      localStorage.setItem("userinfo", JSON.stringify(userDetails));
       localStorage.setItem("isAuthenticated", "true");
       setAuthenticated(true);
       navigate("/");
+    };
+
+    const handleApiError = (error) => {
+      const errorMessage =
+        error.response?.data?.detail || "Network error. Please try again.";
+      setError(errorMessage);
+    };
+
+    try {
+      if (isLogin) {
+        const response = await loginUserFromApi({
+          email: formData.email,
+          password: formData.password,
+        });
+        if (response.status.code === 200) {
+          authenticateUser(response.data.userDetails);
+          dispatch(showSnackbar("Logged In Successfully!"));
+        }
+      } else if (!isLogin && formErrors?.length === 0) {
+        const emailExists = existingMembers.some(
+          (member) => member.email === formData.email
+        );
+        const phoneExists = existingMembers.some(
+          (member) => member.phone === formData.phone
+        );
+
+        if (emailExists) {
+          dispatch(showSnackbar("Email already registered!"));
+          return;
+        }
+        if (phoneExists) {
+          dispatch(showSnackbar("Phone Number already registered!"));
+          return;
+        }
+
+        const response = await createNewUserFromApi(formData);
+        if (response.status.code === 200) {
+          authenticateUser(response.data.userDetails);
+          dispatch(showSnackbar("Signed Up Successfully!"));
+        }
+      }
+    } catch (error) {
+      handleApiError(error);
     }
   };
 
@@ -149,6 +244,21 @@ function LoginPage({ setAuthenticated }) {
                 : ""
             }
           />
+          {!isLogin && (
+            <CustomTextField
+              label="Phone Number"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+              error={formData.phone && formData.phone.length !== 10}
+              helperText={
+                formData.phone && formData.phone.length !== 10
+                  ? "Invalid Phone Number"
+                  : ""
+              }
+            />
+          )}
 
           <CustomTextField
             label="Password"
@@ -156,9 +266,17 @@ function LoginPage({ setAuthenticated }) {
             value={formData.password}
             onChange={handleChange}
             required
+            type="password"
           />
 
-          <Box sx={{ width: "100%", textAlign: "center" }}>
+          <Box
+            sx={{
+              width: "100%",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <CustomButton
               variant="contained"
               color="primary"
@@ -169,7 +287,13 @@ function LoginPage({ setAuthenticated }) {
                 backgroundColor: colorSchemes.primaryGreen,
               }}
               fullWidth
+              disabled={isLogin ? !isLoginFieldsFilled : !isFormValid}
             />
+            <Typography fontSize={12} color="red">
+              {!isLogin && isFormFilled && formErrors.length > 0
+                ? formErrors[0].error
+                : ""}
+            </Typography>
           </Box>
         </Box>
 
@@ -190,7 +314,11 @@ function LoginPage({ setAuthenticated }) {
         </Typography>
 
         {/* Error Message */}
-        {error && <Typography sx={{ color: "red", mt: 2 }}>{error}</Typography>}
+        {error && (
+          <Typography sx={{ color: "red", mt: 2, fontSize: "12px" }}>
+            {error}!
+          </Typography>
+        )}
       </Box>
     </Box>
   );

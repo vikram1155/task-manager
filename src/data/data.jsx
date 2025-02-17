@@ -19,4 +19,7 @@ export const API_ENDPOINTS = {
   GET_TEAM: "/teamMembers",
   POST_TEAM: "/teamMembers",
   UPDATE_TEAM: (teamMemberId) => `/teamMembers/${teamMemberId}`,
+  SIGNUP: "/signup",
+  LOGIN: "/login",
+  USERS: "/allusers",
 };

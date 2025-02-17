@@ -16,7 +16,7 @@ const teamMembersSlice = createSlice({
     },
     updateMember(state, action) {
       const index = state.teamMembers.findIndex(
-        (member) => member.mailId === action.payload.mailId
+        (member) => member.email === action.payload.email
       );
       if (index !== -1) {
         state.teamMembers[index] = action.payload;
