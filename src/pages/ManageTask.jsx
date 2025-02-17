@@ -124,6 +124,15 @@ function ManageTask() {
     setUpdateTaskButtonDisabled(isEqual);
   }, [manageTask, initialData]);
 
+  const userInfo = JSON.parse(localStorage.getItem("userinfo"));
+  const teamMembersLocal = useSelector(
+    (state) => state.teamMembers.teamMembers
+  );
+  const activeUser = teamMembersLocal.find(
+    (member) => member.email === userInfo?.email
+  );
+
+  // JSX
   return (
     <>
       {apiState.loading ? (
@@ -178,13 +187,22 @@ function ManageTask() {
               backgroundColor: colorSchemes.blackBg,
             }}
           >
-            <CustomButton
-              variant="outlined"
-              color="default"
-              onClickFunction={handleDiscard}
-              title="Delete Task"
-              sx={{ backgroundColor: colorSchemes.whiteBg }}
-            />
+            <Tooltip
+              title={activeUser?.access !== "Admin" && "Requires Admin Access"}
+              placement={"top"}
+              disableInteractive
+            >
+              <span>
+                <CustomButton
+                  variant="outlined"
+                  color="default"
+                  onClickFunction={handleDiscard}
+                  title="Delete Task"
+                  sx={{ backgroundColor: colorSchemes.whiteBg }}
+                  disabled={activeUser?.access !== "Admin"}
+                />
+              </span>
+            </Tooltip>
             <Tooltip
               title={"No change to updates"}
               placement={"top"}

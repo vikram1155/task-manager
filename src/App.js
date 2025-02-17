@@ -38,6 +38,8 @@ import { colorSchemes } from "./data/theme";
 import taskHubLogo from "./assets/taskHubLogo.svg";
 import CustomSnackBar from "./components/CustomSnackBar";
 import { useSelector } from "react-redux";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import GitHubIcon from "@mui/icons-material/GitHub";
 
 function Layout({ children }) {
   const navigate = useNavigate();
@@ -153,7 +155,6 @@ function Layout({ children }) {
           </Menu>
         </Box>
       </Box>
-
       <Drawer
         variant="permanent"
         open={sideMenuOpen}
@@ -252,7 +253,6 @@ function Layout({ children }) {
           </List>
         </Box>
       </Drawer>
-
       {sideMenuOpen && (
         <Backdrop
           open={sideMenuOpen}
@@ -260,7 +260,6 @@ function Layout({ children }) {
           sx={{ zIndex: 1 }}
         />
       )}
-
       <Box
         sx={{
           p: "68px 22px 22px",
@@ -269,6 +268,46 @@ function Layout({ children }) {
         }}
       >
         {children}
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          backgroundColor: colorSchemes.blackBg,
+          padding: "10px 20px",
+          color: "white",
+          width: "calc(100% - 80px)",
+          float: "right",
+          position: "fixed",
+          bottom: 0,
+          left: "62px",
+          zIndex: 100,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            gap: 1,
+          }}
+        >
+          <Typography>Connect for more!</Typography>
+          <LinkedInIcon
+            sx={{ fontSize: 18, cursor: "pointer" }}
+            onClick={() =>
+              window.open("https://www.linkedin.com/in/vikram1155/", "_blank")
+            }
+          />
+          <GitHubIcon
+            sx={{ fontSize: 18, cursor: "pointer" }}
+            onClick={() =>
+              window.open("https://github.com/vikram1155/", "_blank")
+            }
+          />
+        </Box>
       </Box>
     </Box>
   );
