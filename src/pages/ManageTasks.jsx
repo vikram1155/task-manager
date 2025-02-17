@@ -12,7 +12,7 @@ import React, { useEffect, useState } from "react";
 import { statusOptions, taskTypeOptions } from "../data/data";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setAllTasks } from "../redux/tasksSlice";
 import CustomTextField from "../components/CustomTextField";
 import CustomMultiSelect from "../components/CustomMultiSelect";
