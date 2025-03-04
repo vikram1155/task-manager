@@ -282,7 +282,7 @@ function Layout({ children }) {
           position: "fixed",
           bottom: 0,
           left: "62px",
-          zIndex: 100,
+          zIndex: 99,
         }}
       >
         <Box

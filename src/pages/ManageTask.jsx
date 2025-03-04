@@ -180,11 +180,12 @@ function ManageTask() {
               position: "fixed",
               bottom: "0",
               left: "0px",
-              zIndex: 1200,
+              zIndex: 10,
               padding: "20px",
               width: "calc(100vw - 95px)",
               marginLeft: "56px",
               backgroundColor: colorSchemes.blackBg,
+              pb: 8,
             }}
           >
             <Tooltip
